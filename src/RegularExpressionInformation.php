@@ -322,6 +322,8 @@ class RegularExpressionInformation
             group: $group,
             string: $groupStrings,
         );
+
+        $group->addChildren(...$structure->getChildren());
     }
 
     public static function fromPattern(string $pattern): static
