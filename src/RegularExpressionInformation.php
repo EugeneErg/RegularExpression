@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace EugeneErg\RegularExpression;
 
 use EugeneErg\RegularExpression\Functions\CustomFunction;
-use EugeneErg\RegularExpression\Parser\ParserItem;
+use EugeneErg\RegularExpression\Parser\ParserGroupItem;
 use EugeneErg\RegularExpression\Parser\ParserOption;
+use EugeneErg\RegularExpression\Parser\ParserOptionItem;
+use EugeneErg\RegularExpression\Parser\StringParser;
 use LogicException;
 
 class RegularExpressionInformation
@@ -107,21 +109,23 @@ class RegularExpressionInformation
 
     private const ALL_SPECIAL = '{}]<>-=#:()[?+*^$.|\\!';
 
+    private readonly 
+
     public function __construct(public readonly RegularExpression $regularExpression)
     {
-        $groupStrings = ParserItem::options(
+        $groupStrings = new ParserOptionItem(
             ParserOption::match('\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
             ParserOption::match('(?<value>[^' . $this->escape(self::GROUP_SPECIAL) . ']+)', 'value'),
         );
-        $charsStrings = ParserItem::options(
+        $charsStrings = new ParserOptionItem(
             ParserOption::match('\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
             ParserOption::match('(?<value>[^' . $this->escape(self::CHARS_SPECIAL) . ']+)', 'value'),
         );
-        $decimal = ParserItem::options(
+        $decimal = new ParserOptionItem(
             ParserOption::new('\\\\d', ['not' => false]),
             ParserOption::new('\\\\D', ['not' => true]),
         );
-        $whitespace = ParserItem::options(
+        $whitespace = new ParserOptionItem(
             ParserOption::new('\\\\h', ['horizontal' => true, 'vertical' => false, 'not' => false]),
             ParserOption::new('\\\\H', ['horizontal' => true, 'vertical' => false, 'not' => true]),
             ParserOption::new('\\\\s', ['horizontal' => true, 'vertical' => true, 'not' => false]),
@@ -129,17 +133,17 @@ class RegularExpressionInformation
             ParserOption::new('\\\\v', ['horizontal' => false, 'vertical' => true, 'not' => false]),
             ParserOption::new('\\\\V', ['horizontal' => false, 'vertical' => true, 'not' => true]),
         );
-        $word = ParserItem::options(
+        $word = new ParserOptionItem(
             ParserOption::new('\\\\w', ['not' => false]),
             ParserOption::new('\\\\W', ['not' => true]),
         );
-        $alarm = ParserItem::equal('\\\\a');
-        $newline = ParserItem::equal('\\\\n');
-        $carriageReturn = ParserItem::equal('\\\\r');
-        $tab = ParserItem::equal('\\\\t');
-        $escape = ParserItem::equal('\\\\e');
-        $formFeed = ParserItem::equal('\\\\f');
-        $hex = ParserItem::options(
+        $alarm = ParserOptionItem::equal('\\\\a');
+        $newline = ParserOptionItem::equal('\\\\n');
+        $carriageReturn = ParserOptionItem::equal('\\\\r');
+        $tab = ParserOptionItem::equal('\\\\t');
+        $escape = ParserOptionItem::equal('\\\\e');
+        $formFeed = ParserOptionItem::equal('\\\\f');
+        $hex = new ParserOptionItem(
             ParserOption::new('\\\\x(?<value>(?i)[0-9a-f]{0,2})', fn (array $match) => [
                 'value' => $match['value'],
                 'type' => 'value',
@@ -153,7 +157,7 @@ class RegularExpressionInformation
                 'type' => 'ord',
             ]),
         );
-        $group = ParserItem::group(
+        $group = ParserGroupItem::group(
             '\\(', '\\)',
             ParserOption::new(
                 '\\?(?<direction><|)(?<not>=|!)',
@@ -175,15 +179,15 @@ class RegularExpressionInformation
             ParserOption::new('\\?', ['condition' => true]),
         );
 
-        $structure = ParserItem::children(
-            recursive: ParserItem::equal('(\\?\\R\\)'),
-            flags: ParserItem::options(ParserOption::match(
+        $structure = ParserGroupItem::group('\\{', '\\}')->addChildren(
+            recursive: ParserOptionItem::equal('(\\?\\R\\)'),
+            flags: new ParserOptionItem(ParserOption::match(
                 '\\(\\?(?<add>[imsxUXJ])*\\(?:\\-(?<remove>[imsxUXJ]*))?\\)',
                 'add',
                 'remove',
             )),
-            chars: ParserItem::group('\\[', '\\]', ParserOption::new('\\^', ['not' => true]))->addChildren(
-                class: ParserItem::options(
+            chars: ParserGroupItem::group('\\[', '\\]', ParserOption::new('\\^', ['not' => true]))->addChildren(
+                class: new ParserOptionItem(
                     ParserOption::new(
                         '\\[(?<not>\\^)?\\:(?<value>' . implode('|', self::CHAR_CLASSES) . ')\\:\\]',
                         fn (array $match) => [
@@ -195,14 +199,14 @@ class RegularExpressionInformation
                 decimal: $decimal,
                 whitespace: $whitespace,
                 word: $word,
-                word_boundary: ParserItem::options(ParserOption::new('\\\\b', ['not' => false])),
+                word_boundary: new ParserOptionItem(ParserOption::new('\\\\b', ['not' => false])),
                 alarm: $alarm,
                 newline: $newline,
                 carriage_return: $carriageReturn,
                 tab: $tab,
                 escape: $escape,
                 form_feed: $formFeed,
-                unicode: ParserItem::options(
+                unicode: new ParserOptionItem(
                     ParserOption::new('\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])', fn (array $match) => [
                         'value' => self::SINGLE_UNI_CODES[$match['value']],
                         'not' => $match['type'] === 'P',
@@ -215,7 +219,7 @@ class RegularExpressionInformation
                     ]),
                 ),
                 hex: $hex,
-                between: ParserItem::options(
+                between: new ParserOptionItem(
                     ParserOption::match(
                         '(?:(?<from>[^' . $this->escape(self::CHARS_SPECIAL) . ')|\\\\(?<from>[' . $this->escape(self::ALL_SPECIAL) . ']))\\-(?:(?<to>[^' . $this->escape(self::CHARS_SPECIAL) . '])|\\\\(?<to>[' . $this->escape(self::ALL_SPECIAL) . ']))',
                         'from',
@@ -224,7 +228,7 @@ class RegularExpressionInformation
                 ),
                 strings: $charsStrings,
             ),
-            count: ParserItem::options(
+            count: new ParserOptionItem(
                 ParserOption::new('\\*', ['from' => 0, 'type' => 'unsigned']),
                 ParserOption::new('\\+', ['from' => 1, 'type' => 'positive']),
                 ParserOption::new('\\?', ['from' => 0, 'type' => 'boolean', 'to' => 1]),
@@ -239,28 +243,28 @@ class RegularExpressionInformation
                     'type' => 'equal',
                 ]),
             ),
-            any: ParserItem::equal('.'),
-            start: ParserItem::equal('^'),
-            begin: ParserItem::equal('$'),
+            any: ParserOptionItem::equal('.'),
+            start: ParserOptionItem::equal('^'),
+            begin: ParserOptionItem::equal('$'),
             decimal: $decimal,
             whitespace: $whitespace,
             word: $word,
-            word_boundary: ParserItem::options(
+            word_boundary: new ParserOptionItem(
                 ParserOption::new('\\\\b', ['not' => false]),
                 ParserOption::new('\\\\B', ['not' => true]),
             ),
             alarm: $alarm,
-            start_of_subject: ParserItem::equal('\\\\A'),
-            end_of_subject: ParserItem::equal('\\\\z'),
-            end_of_subject_or_newline_at_end: ParserItem::equal('\\\\Z'),
-            first_matching_position_in_subject: ParserItem::equal('\\\\G'),
+            start_of_subject: ParserOptionItem::equal('\\\\A'),
+            end_of_subject: ParserOptionItem::equal('\\\\z'),
+            end_of_subject_or_newline_at_end: ParserOptionItem::equal('\\\\Z'),
+            first_matching_position_in_subject: ParserOptionItem::equal('\\\\G'),
             newline: $newline,
             carriage_return: $carriageReturn,
-            line_break: ParserItem::equal('\\\\R'),
+            line_break: ParserOptionItem::equal('\\\\R'),
             tab: $tab,
             escape: $escape,
             form_feed: $formFeed,
-            unicode: ParserItem::options(
+            unicode: new ParserOptionItem(
                 ParserOption::new('\\\\X', ['type' => 'any']),
                 ParserOption::new('\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])', fn (array $match) => [
                     'value' => self::SINGLE_UNI_CODES[$match['value']],
@@ -274,7 +278,7 @@ class RegularExpressionInformation
                 ]),
             ),
             hex: $hex,
-            group_link: ParserItem::options(
+            group_link: new ParserOptionItem(
                 ParserOption::new('\\\\g(?<value>-?[0-9]+)', fn (array $match) => [
                     'value' => (int) $match['value'],
                     'type' => 'group',
@@ -312,20 +316,25 @@ class RegularExpressionInformation
                     'type' => 'recursive and',
                 ]),
             ),
-            comment: ParserItem::options(
+            comment: new ParserOptionItem(
                 ParserOption::match('\\(#(?<value>.*?)\\)', 'value'),
             ),
-            numbers: ParserItem::options(
+            numbers: new ParserOptionItem(
                 ParserOption::new('\\\\(?<value>\\d+)', 'value'),
             ),
-            or: ParserItem::equal('|'),
+            or: ParserOptionItem::equal('|'),
             group: $group,
             string: $groupStrings,
         );
 
         $group->addChildren(...$structure->getChildren());
+
+        $this->parser = new StringParser($group);
     }
 
+    /**
+     * @throws RegularExpressionException
+     */
     public static function fromPattern(string $pattern): static
     {
         return new RegularExpressionInformation(RegularExpression::fromPattern($pattern));
@@ -333,7 +342,7 @@ class RegularExpressionInformation
 
     public function getStructure(): CustomFunction
     {
-
+        $prepare =
 
 
 

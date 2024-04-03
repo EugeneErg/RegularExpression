@@ -29,15 +29,18 @@ final class ParserOption
     public static function new(string|RegularExpression $pattern, array|callable $callback): self
     {
         return new self(
-            $pattern instanceof RegularExpression ? $pattern : RegularExpression::fromPattern($pattern),
+            $pattern instanceof RegularExpression ? $pattern : new RegularExpression('{', $pattern, '}'),
             is_callable($callback) ? $callback : fn () => $callback,
         );
     }
 
+    /**
+     * @throws RegularExpressionException
+     */
     public static function match(string|RegularExpression $pattern, string ...$fields): self
     {
         return new self(
-            $pattern instanceof RegularExpression ? $pattern : RegularExpression::fromPattern($pattern),
+            $pattern instanceof RegularExpression ? $pattern : new RegularExpression('{', $pattern, '}'),
             function (array $match) use ($fields): array {
                 $result = [];
 
