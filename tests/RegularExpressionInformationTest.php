@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use EugeneErg\RegularExpression\RegularExpression;
+use EugeneErg\RegularExpression\RegularExpressionInformation;
 use PHPUnit\Framework\TestCase;
 
 class RegularExpressionInformationTest extends TestCase
 {
     public function test(): void
     {
-        var_dump(preg_match('{[a-]}', '-'));
+        $regularExpressionInformation = new RegularExpressionInformation();
+
+        $actual = $regularExpressionInformation->getStructure(new RegularExpression('{', 'a|ba', '}'));
+
+        var_dump($actual);
     }
 }

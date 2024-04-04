@@ -7,7 +7,7 @@ namespace EugeneErg\RegularExpression\Parser;
 use EugeneErg\RegularExpression\RegularExpression;
 use EugeneErg\RegularExpression\RegularExpressionException;
 
-final class ParserOptionItem implements ParserItemInterface
+final class ParserOptionItem
 {
     /** @var ParserOption[] */
     private readonly array $options;
@@ -22,7 +22,7 @@ final class ParserOptionItem implements ParserItemInterface
      */
     public static function equal(string $value): self
     {
-        return self::options(new ParserOption(new RegularExpression('{', $value, '}'), fn () => []));
+        return self::options(new ParserOption(new RegularExpression('{', $value, '}', RegularExpression::PCRE_INFO_JCHANGED), fn () => []));
     }
 
     public static function options(ParserOption ...$options): self

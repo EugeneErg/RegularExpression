@@ -44,7 +44,11 @@ class RegularExpression implements Stringable, JsonSerializable
         public readonly string $closeDelimiter,
         public readonly int $modifiers = 0,
     ) {
-        static::checkPattern((string) $this);
+        try {
+            static::checkPattern((string) $this);
+        } catch (\Throwable) {
+            var_dump((string) $this);die;
+        }
     }
 
     /**

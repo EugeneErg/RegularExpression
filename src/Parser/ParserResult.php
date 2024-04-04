@@ -8,9 +8,12 @@ final class ParserResult
 {
     /**
      * @param ParserOption[] $options
-     * @param array<string, ParserItemInterface> $children
+     * @param array<string, ParserItem> $children
      */
-    public function __construct(public readonly array $options = [], public readonly array $children = [])
-    {
+    public function __construct(
+        public readonly string $name,
+        public readonly array $options = [],
+        public readonly array $children = [],
+    ) {
     }
 }
