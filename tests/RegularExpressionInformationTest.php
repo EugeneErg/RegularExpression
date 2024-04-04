@@ -14,7 +14,7 @@ class RegularExpressionInformationTest extends TestCase
     {
         $regularExpressionInformation = new RegularExpressionInformation();
 
-        $actual = $regularExpressionInformation->getStructure(new RegularExpression('{', 'a|ba', '}'));
+        $actual = $regularExpressionInformation->getStructure(new RegularExpression('{', 'a|(?<test>ba)', '}'));
 
         var_dump($actual);
     }

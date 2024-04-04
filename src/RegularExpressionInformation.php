@@ -167,7 +167,6 @@ class RegularExpressionInformation
                     'not' => $match['not'] === '!',
                 ],
             ),
-            ParserOption::new('\\?<', ['once' => true]),
             ParserOption::new('\\?(?<type>P?<)(?<value>[a-z0-9_]+)\\>', fn (array $match) => [
                 'name' => $match['value'],
                 'name_type' => $match['type'],
@@ -177,6 +176,7 @@ class RegularExpressionInformation
                 'name_type' => $match['type'],
             ]),
             ParserOption::match('\\?(?<add>[imsxUXJ]*)(?:\\-(?<remove>[imsxUXJ]*))?\\:', 'add', 'remove'),
+            ParserOption::new('\\?<', ['once' => true]),
             ParserOption::new('\\?(?=\\()', ['condition' => true]),
         );
 

@@ -32,8 +32,6 @@ class ParserProcess
             if ($match === []) {
                 return null;
             }
-
-            $this->offset += strlen($match[0]);
         }
 
         $options = $this->parseOption($item);
@@ -55,8 +53,6 @@ class ParserProcess
                     $match = $this->match($item->getEnd());
 
                     if ($match !== []) {
-                        $this->offset += strlen($match[0]);
-
                         break;
                     }
                 }
@@ -77,7 +73,13 @@ class ParserProcess
      */
     private function match(RegularExpression $pattern): array
     {
-        return RegularExpression::fromPattern('{^.{' . $this->offset . '}' . $pattern->pattern . '}J')->match($this->subject);
+        $result = RegularExpression::fromPattern('{^.{' . $this->offset . '}' . $pattern->pattern . '}J')->match($this->subject);
+
+        if ($result !== []) {
+            $this->offset = strlen($result[0]);
+        }
+
+        return $result;
     }
 
     /**
@@ -89,8 +91,6 @@ class ParserProcess
             $match = $this->match($option->regularExpression);
 
             if ($match !== []) {
-                $this->offset += strlen($match[0]);
-
                 return ($option->callback)($match);
             }
         }
