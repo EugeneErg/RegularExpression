@@ -7,7 +7,7 @@ namespace EugeneErg\RegularExpression\Parser;
 final class ParserResult
 {
     /**
-     * @param ParserOption[] $options
+     * @param array<string, mixed> $options
      * @param array<string, ParserItem> $children
      */
     public function __construct(

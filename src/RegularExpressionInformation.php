@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression;
 
-use EugeneErg\RegularExpression\Functions\CustomFunction;
+use EugeneErg\RegularExpression\Functions\CharFunction;
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
+use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
+use EugeneErg\RegularExpression\Functions\GroupFunction;
+use EugeneErg\RegularExpression\Functions\StructureFunction;
 use EugeneErg\RegularExpression\Parser\ParserItem;
 use EugeneErg\RegularExpression\Parser\ParserOption;
 use EugeneErg\RegularExpression\Parser\ParserResult;
@@ -109,40 +113,17 @@ class RegularExpressionInformation
 
     private const ALL_SPECIAL = '{}]<>-=#:()[?+*^$.|\\!';
 
-    private readonly StringParser $parser;
+    private readonly FunctionInterface $structure;
 
-    public function __construct()
+    public function __construct(RegularExpression $regularExpression)
     {
-        $groupStrings = ParserItem::options(
-            ParserOption::match('\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
-            ParserOption::match('(?<value>[^' . $this->escape(self::GROUP_SPECIAL) . ']+)', 'value'),
-        );
-        $charsStrings = ParserItem::options(
-            ParserOption::match('\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
-            ParserOption::match('(?<value>[^' . $this->escape(self::CHARS_SPECIAL) . ']+)', 'value'),
-        );
-        $decimal = ParserItem::options(
-            ParserOption::new('\\\\d', ['not' => false]),
-            ParserOption::new('\\\\D', ['not' => true]),
-        );
-        $whitespace = ParserItem::options(
-            ParserOption::new('\\\\h', ['horizontal' => true, 'vertical' => false, 'not' => false]),
-            ParserOption::new('\\\\H', ['horizontal' => true, 'vertical' => false, 'not' => true]),
-            ParserOption::new('\\\\s', ['horizontal' => true, 'vertical' => true, 'not' => false]),
-            ParserOption::new('\\\\S', ['horizontal' => true, 'vertical' => true, 'not' => true]),
-            ParserOption::new('\\\\v', ['horizontal' => false, 'vertical' => true, 'not' => false]),
-            ParserOption::new('\\\\V', ['horizontal' => false, 'vertical' => true, 'not' => true]),
-        );
-        $word = ParserItem::options(
-            ParserOption::new('\\\\w', ['not' => false]),
-            ParserOption::new('\\\\W', ['not' => true]),
-        );
-        $alarm = ParserItem::equal('\\\\a');
-        $newline = ParserItem::equal('\\\\n');
-        $carriageReturn = ParserItem::equal('\\\\r');
-        $tab = ParserItem::equal('\\\\t');
-        $escape = ParserItem::equal('\\\\e');
-        $formFeed = ParserItem::equal('\\\\f');
+        $decimal = ParserItem::equal('\\\\(?<value>(?i)d)', fn (array $match) => ['not' => $match['value'] === 'D']);
+        $whitespace = ParserItem::equal('\\\\(?<value>(?i)[hsv])', fn (array $match) => [
+            'horizontal' => str_contains('sShH', $match['value']),
+            'vertical' => str_contains('sSvV', $match['value']),
+            'not' => str_contains('HSV', $match['value']),
+        ]);
+        $word = ParserItem::equal('\\\\(?<value>(?i)w)', fn (array $match) => ['not' => $match['value'] === 'W']);
         $hex = ParserItem::options(
             ParserOption::new('\\\\x(?<value>(?i)[0-9a-f]{0,2})', fn (array $match) => [
                 'value' => $match['value'],
@@ -181,40 +162,31 @@ class RegularExpressionInformation
         );
 
         $structure = ParserItem::children(
-            recursive: ParserItem::equal('\\(\\?\\R\\)'),
             flags: ParserItem::options(ParserOption::match(
                 '\\(\\?(?<add>[imsxUXJ])*(?:\\-(?<remove>[imsxUXJ]*))?\\)',
                 'add',
                 'remove',
             )),
             chars: ParserItem::group('\\[', '\\]', ParserOption::new('\\^', ['not' => true]))->addChildren(
-                class: ParserItem::options(
-                    ParserOption::new(
-                        '\\[(?<not>\\^)?\\:(?<value>' . implode('|', self::CHAR_CLASSES) . ')\\:\\]',
-                        fn (array $match) => [
-                            'value' => $match['value'],
-                            'not' => isset($match['not']),
-                        ],
-                    ),
+                class: ParserItem::equal(
+                    '\\[(?<not>\\^)?\\:(?<value>' . implode('|', self::CHAR_CLASSES) . ')\\:\\]',
+                    fn (array $match) => [
+                        'value' => $match['value'],
+                        'not' => isset($match['not']),
+                    ],
                 ),
                 decimal: $decimal,
                 whitespace: $whitespace,
                 word: $word,
                 word_boundary: ParserItem::options(ParserOption::new('\\\\b', ['not' => false])),
-                alarm: $alarm,
-                newline: $newline,
-                carriage_return: $carriageReturn,
-                tab: $tab,
-                escape: $escape,
-                form_feed: $formFeed,
                 unicode: ParserItem::options(
                     ParserOption::new('\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])', fn (array $match) => [
-                        'value' => self::SINGLE_UNI_CODES[$match['value']],
+                        'value' => $match['value'],
                         'not' => $match['type'] === 'P',
                         'type' => 'value',
                     ]),
                     ParserOption::new('\\\\(?<type>p|P)\\{(?<not>\\^)?(?<value>' . $this->getUniCodes() . ')\\}', fn (array $match) => [
-                        'value' => self::SINGLE_UNI_CODES[$match['value']] ?? self::UNI_CODES[$match['value']] ?? $match['value'],
+                        'value' => $match['value'],
                         'not' => isset($match['not']) === ($match['type'] === 'p'),
                         'type' => 'brace',
                     ]),
@@ -227,21 +199,35 @@ class RegularExpressionInformation
                         'to',
                     ),
                 ),
-                strings: $charsStrings,
+                string: ParserItem::options(
+                    ParserOption::match('\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
+                    ParserOption::match('(?<value>[^' . $this->escape(self::CHARS_SPECIAL) . '])', 'value'),
+                    ParserOption::new(
+                        '\\\\(?<value>[ertfna])',
+                        fn (array $match) => [
+                            'value' => ['e' => "\e", 'r' => "\r", 't' => "\t", 'f' => "\f", 'n' => "\n", 'a' => "\x07"][$match['value']],
+                        ],
+                    ),
+                ),
             ),
             count: ParserItem::options(
-                ParserOption::new('\\*', ['from' => 0, 'type' => 'unsigned']),
-                ParserOption::new('\\+', ['from' => 1, 'type' => 'positive']),
-                ParserOption::new('\\?', ['from' => 0, 'type' => 'boolean', 'to' => 1]),
-                ParserOption::new('\\{(?<from>\\d+),(?<to>\\d+)?\\}', fn (array $match) => [
+                ParserOption::new('(?<value>[*+?])(?<lazy>\\?)', fn (array $match) => [
+                    'from' => $match['value'] === '+' ? 1 : 0,
+                    'to' => $match['value'] === '?' ? 1 : null,
+                    'type' => ['*' => 'unsigned', '+' => 'positive', '?' => 'boolean'][$match['value']],
+                    'lazy' => isset($match['lazy']),
+                ]),
+                ParserOption::new('\\{(?<from>\\d+),(?<to>\\d+)?\\}(?<lazy>\\?)', fn (array $match) => [
                     'from' => (int) $match['from'],
                     'to' => isset($match['to']) ? (int) $match['to'] : null,
                     'type' => 'between',
+                    'lazy' => isset($match['lazy']),
                 ]),
                 ParserOption::new('\\{(?<equal>\\d+)\\}', fn (array $match) => [
                     'from' => (int) $match['equal'],
                     'to' => (int) $match['equal'],
                     'type' => 'equal',
+                    'lazy' => false,
                 ]),
             ),
             any: ParserItem::equal('\\.'),
@@ -250,21 +236,11 @@ class RegularExpressionInformation
             decimal: $decimal,
             whitespace: $whitespace,
             word: $word,
-            word_boundary: ParserItem::options(
-                ParserOption::new('\\\\b', ['not' => false]),
-                ParserOption::new('\\\\B', ['not' => true]),
-            ),
-            alarm: $alarm,
+            word_boundary: ParserItem::equal('\\\\(?<value>(?i)b)', fn (array $match) => ['not' => $match['value'] === 'B']),
             start_of_subject: ParserItem::equal('\\\\A'),
             end_of_subject: ParserItem::equal('\\\\z'),
             end_of_subject_or_newline_at_end: ParserItem::equal('\\\\Z'),
             first_matching_position_in_subject: ParserItem::equal('\\\\G'),
-            newline: $newline,
-            carriage_return: $carriageReturn,
-            line_break: ParserItem::equal('\\\\R'),
-            tab: $tab,
-            escape: $escape,
-            form_feed: $formFeed,
             unicode: ParserItem::options(
                 ParserOption::new('\\\\X', ['type' => 'any']),
                 ParserOption::new('\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])', fn (array $match) => [
@@ -280,41 +256,80 @@ class RegularExpressionInformation
             ),
             hex: $hex,
             group_link: ParserItem::options(
+                ParserOption::new('\\(\\?\\R\\)', [
+                    'value' => 0,
+                    'recursive' => true,
+                ]),
+                ParserOption::new(
+                    '\\((?:\\R|(?<value>\d+)|(?<value>[a-z_][a-z0-9_]*)|\'(?<value>[a-z_][a-z0-9_]*)\'|<(?<value>[a-z_][a-z0-9_]*)>)\\)',
+                    function (array $match, int $position, string $parent, array $parentOptions) {
+                        if ($position > 0 || empty($parentOptions['condition'])) {
+                            return null;
+                        }
+
+                        $value = $match['value'] ?? 0;
+
+                        return [
+                            'value' => is_numeric($value) ? (int) $value : $value,
+                            'recursive' => true,
+                            'first_in_condition' => true,
+                            'template_or_group_with_name_R' => !isset($match['value']),
+                        ];
+                    },
+                ),
                 ParserOption::new('\\\\g(?<value>-?[0-9]+)', fn (array $match) => [
                     'value' => (int) $match['value'],
                     'type' => 'group',
+                    'recursive' => false,
                 ]),
                 ParserOption::new('\\\\g\\{(?<value>-?[0-9]+)\\}', fn (array $match) => [
                     'value' => (int) $match['value'],
                     'type' => 'group brace',
+                    'recursive' => false,
                 ]),
                 ParserOption::new('\\\\(?<type>k|g)\'(?<value>\'[a-z_][a-z0-9_]*)\'', fn (array $match) => [
                     'value' => $match['value'],
                     'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' quote',
+                    'recursive' => false,
                 ]),
                 ParserOption::new('\\\\(?<type>k|g)\\{(?<value>[a-z_][a-z0-9_]*)\\}', fn (array $match) => [
                     'value' => $match['value'],
                     'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' brace',
+                    'recursive' => false,
                 ]),
                 ParserOption::new('\\\\(?<type>k|g)\\<(?<value>[a-z_][a-z0-9_]*)\\>', fn (array $match) => [
                     'value' => $match['value'],
                     'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' tag',
+                    'recursive' => false,
                 ]),
                 ParserOption::new('\\(\\?(?<value>\d+)\\)', fn (array $match) => [
                     'value' => $match['value'],
-                    'type' => 'recursive',
+                    'recursive' => true,
                 ]),
+                ParserOption::new('\\((?<value>\d+)\\)', function (array $match, int $position, string $parent, array $parentOptions) {
+                    if ($position === 0 || empty($parentOptions['condition'])) {
+                        return null;
+                    }
+
+                    return [
+                        'value' => $match['value'],
+                        'recursive' => true,
+                    ];
+                }),
                 ParserOption::new('\\(\\?P=(?<value>[a-z][a-z0-9_]*)\\)', fn (array $match) => [
                     'value' => $match['value'],
-                    'type' => 'recursive equal',
+                    'type' => 'equal',
+                    'recursive' => true,
                 ]), // ссылка на группу v
                 ParserOption::new('\\(\\?P>(?<value>[a-z][a-z0-9_]*)\\)', fn (array $match) => [
                     'value' => $match['value'],
-                    'type' => 'recursive greather',
+                    'type' => 'greather',
+                    'recursive' => true,
                 ]), // ссылка на рекурсиную группу V
                 ParserOption::new('\\(\\?&(?<value>[a-z][a-z0-9_]*)\\)', fn (array $match) => [
                     'value' => $match['value'],
-                    'type' => 'recursive and',
+                    'type' => 'and',
+                    'recursive' => true,
                 ]),
             ),
             comment: ParserItem::options(
@@ -325,12 +340,29 @@ class RegularExpressionInformation
             ),
             or: ParserItem::equal('\\|'),
             group: $group,
-            string: $groupStrings,
+            string: ParserItem::options(
+                ParserOption::match('\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])', 'value'),
+                ParserOption::match('(?<value>[^' . $this->escape(self::GROUP_SPECIAL) . '])', 'value'),
+                ParserOption::new('\\\\(?<value>[ertfna])', fn (array $match) => [
+                    'value' => ['e' => "\e", 'r' => "\r", 't' => "\t", 'f' => "\f", 'n' => "\n", 'a' => "\x07"][$match['value']],
+                ]),
+            ),
         );
 
         $group->addChildren(...$structure->getChildren());
 
-        $this->parser = new StringParser($structure);
+        $result = (new StringParser($structure))->parse($regularExpression->pattern);
+
+        if ($result === null) {
+            throw new LogicException('invalid code.');
+        }
+
+        $groups = [];
+        $this->structure = $this->prepare(
+            $result,
+            new StructureFunction($regularExpression->modifiers),
+            $groups,
+        );
     }
 
     /**
@@ -338,346 +370,32 @@ class RegularExpressionInformation
      */
     public static function fromPattern(string $pattern): static
     {
-        return new RegularExpressionInformation(RegularExpression::fromPattern($pattern));
-    }
-
-    public function getStructure(RegularExpression $regularExpression): ?ParserResult
-    {
-        return $this->parser->parse($regularExpression->pattern);
-
-
-
-
-        $pattens = [
-            '(?<type>p|P)(?<value>[CLMNPSZ])',
-            '(?<type>(?:p|P)\\{)(?<not>\\^)?(?<value>' . implode('|', self::UNI_CODES) . ')\\}',
-            '(?<type>g)(?<value>-?[0-9]+)',
-            '(?<type>g\\{)(?<value>-?[0-9]+)\\}',
-            '(?<type>(?:k|g)\')(?<value>\'[a-z0-9]+)\'',
-            '(?<type>(?:k|g)\\{)(?<value>[a-z0-9]+)\\}',
-            '(?<type>(?:k|g)\\<)(?<value>[a-z0-9]+)\\>',
-        ];
-        $groupString = (string) $groupCount;
-
-        if ($groupCount === 0) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{1,3}|0)';
-        } elseif ($groupCount <= 7) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{1,3})';
-        } elseif ($groupCount < 10) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|[0-' . $groupCount . '])';
-        } elseif ($groupCount < 100) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0) . ']|[0-9])';
-        } elseif ($groupCount < 1000) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0) . ']|[1-9][0-9]?|0)';
-        } else {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0)
-                . ']|[1-9][0-9]{0,' . (strlen($groupString) - 2) . '}|0)';
-        }
-
-
-
-
-        $length = strlen($this->regularExpression->pattern);
-        $result = new CustomFunction('group');
-        $groupCount = 0;
-
-        for ($i = 0; $i < $length; $i++) {
-            $char = $this->getChar($i);
-
-            if ($char === '|') {
-                $result = $this->getChoisParse($i, $length, $result);
-            }
-
-            if (str_contains('{?*+', $char)) {
-                $this->getCountParse($i, $result);
-            } else {
-                $result->addChild(match ($char) {
-                    '\\' => $this->getSlashParse($i, $groupCount),
-                    '(' => $this->getGroupParse($i, $length, $groupCount),
-                    '[' => $this->getCharsParse($i, $length, $groupCount),
-                    '.' => new CustomFunction('any'),
-                    default => $this->getStringParse($i, $length),
-                });
-            }
-        }
-
-        return count($result->getChildren()->items) === 1 ? $result->getLastChild() : $result;
-    }
-
-    private function getChar(int $pos): ?string
-    {
-        return $this->regularExpression->pattern[$pos] ?? null;
-    }
-
-    private function getStringParse(int &$i, int $length): string
-    {
-        $result = '';
-
-        for (; $i < $length; $i++) {
-            $char = $this->getChar($i);
-
-            if (str_contains(self::ALL_SPECIAL, $char)) {
-                return $result;
-            }
-
-            $result .= $char;
-        }
-
-        return $result;
-    }
-
-    private function getSlashParse(int &$i, int $groupCount): string|CustomFunction
-    {
-        $i++;
-        $char = $this->getChar($i);
-
-        if (str_contains(self::ALL_SPECIAL . '-', $char)) {
-            return $char;
-        }
-
-        $name = self::ESCAPES[$char] ?? null;
-
-        if ($name !== null) {
-            return new CustomFunction($name);
-        }
-
-        $pattens = [
-            '(?<type>x)((?<value>(?:[0-9a-f]|[0-9A-F]){0,2}))',
-            '(?<type>x\\{)(?<value>(?:[0-9a-f]|[0-9A-F]){1,4})\\}',
-            '(?<type>c)(?<value>.)',
-            '(?<type>p|P)(?<value>[CLMNPSZ])',
-            '(?<type>(?:p|P)\\{)(?<not>\\^)?(?<value>' . implode('|', self::UNI_CODES) . ')\\}',
-            '(?<type>g)(?<value>-?[0-9]+)',
-            '(?<type>g\\{)(?<value>-?[0-9]+)\\}',
-            '(?<type>(?:k|g)\')(?<value>\'[a-z0-9]+)\'',
-            '(?<type>(?:k|g)\\{)(?<value>[a-z0-9]+)\\}',
-            '(?<type>(?:k|g)\\<)(?<value>[a-z0-9]+)\\>',
-        ];
-        $groupString = (string) $groupCount;
-
-        if ($groupCount === 0) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{1,3}|0)';
-        } elseif ($groupCount <= 7) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{1,3})';
-        } elseif ($groupCount < 10) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|[0-' . $groupCount . '])';
-        } elseif ($groupCount < 100) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0) . ']|[0-9])';
-        } elseif ($groupCount < 1000) {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0) . ']|[1-9][0-9]?|0)';
-        } else {
-            $pattens[] = '(?<type>)(?<value>[0-7]{2,3}|'
-                . substr_replace($groupString, '[0-', -1, 0)
-                . ']|[1-9][0-9]{0,' . (strlen($groupString) - 2) . '}|0)';
-        }
-
-        $result = $this->match($i, '(?:' . implode('|', $pattens) . ')');
-
-        if ($result === []) {
-            throw new LogicException('Invalid parser.');
-        }
-
-        return match ($result['type']) {
-            'x','x{' => (new CustomFunction('hex'))->setOption(value: $result['value'], type: $result['type']),
-            'c' => (new CustomFunction('hex'))->setOption(value: $this->charToHex($result['value']), type: 'c'),
-            'p','p{' => (new CustomFunction('unicode'))->setOption(value: $result['value'], type: $result['type'], not: isset($result['not'])),
-            'P','P{' => (new CustomFunction('unicode'))->setOption(value: $result['value'], type: $result['type'], not: !isset($result['not'])),
-            'g','g{','g\'','g<','k{','k\'','k<' => (new CustomFunction('group_number'))->setOption(value: (int) $result['value'], type: $result['type']),
-            '' => $this->getNumberFunction($result['value'], $groupCount),
-            default => throw new LogicException('Invalid pattern'),
-        };
-    }
-
-    private function getCountParse(int &$i, CustomFunction $parent): void
-    {
-        $lastValue = $parent->getLastChild();
-        $result = new CustomFunction('count');
-        $char = $this->getChar($i);
-        $result->setOption(type: ['?' => 'boolean', '+' => 'positive', '*' => 'unsigned', '{' => 'between'][$char]);
-
-        if ($char === '?') {
-            $result->setOption(from: 0, to: 1);
-        } elseif ('+') {
-            $result->setOption(from: 1);
-        } elseif ('*') {
-            $result->setOption(from: 0);
-        } else {
-            $match = $this->match($i, '\\{(?:(?<from>\\d+)?,(?<to>\\d+)?|(?<from>(?<to>\\d+)))\\}');
-
-            if (isset($match['from'])) {
-                $result->setOption(from: (int) $match['from']);
-            }
-
-            if (isset($match['to'])) {
-                $result->setOption(to: (int) $match['to']);
-            }
-
-            $i += strlen($match[0]) - 1;
-        }
-
-        if ($lastValue instanceof CustomFunction || strlen($lastValue) === 1) {
-            $result->addChild($lastValue);
-            $parent->replaceLastChild($result);
-        } else {
-            $parent->replaceLastChild(substr($lastValue, 0, -1));
-            $result->addChild(substr($lastValue, -1));
-            $parent->addChild($result);
-        }
-    }
-
-    private function getCharsParse(int &$i, int $length, int $groupCount): CustomFunction
-    {
-        $result = new CustomFunction('chars');
-        $i++;
-
-        if ($this->getChar($i) === '^') {
-            $result->setOption(not: true);
-            $i++;
-        }
-
-        for (; $i < $length; $i++) {
-            $char = $this->getChar($i);
-
-            if ($char === ']' && $result->getLastKey() !== null) {
-                return $result;
-            }
-
-            if ($char === '[') {
-                $result->addChild($this->checkCharClasses($i));
-            } elseif ($char === '\\') {
-                $result->addChild($this->getSlashParse($i, $groupCount));
-            } elseif ($char === '-' && is_string($result->getLastChild()) && $this->getChar($i + 1) !== ']') {
-                $value = $result->getLastChild();
-                $i++;
-                $child = (new CustomFunction('between'))->setOption(from: substr($value, -1), to: $this->getChar($i));
-
-                if (strlen($value) === 1) {
-                    $value->replaceLastChild($child);
-                } else {
-                    $result->replaceLastChild(substr($value, 0, -1));
-                    $value->addChild($child);
-                }
-            } else {
-                $result->addChild($char);
-            }
-        }
-
-        throw new LogicException('Invalid pattern');
-    }
-
-    private function getGroupParse(int &$i, int $length, int &$groupCount): CustomFunction
-    {
-        $result = new CustomFunction('group');
-
-        if ($this->getChar($i + 1) === '?') {
-            $i++;
-            $match = $this->match($i, '(?:' . implode('|', [
-                '(?<type>)(?<direction><|)(?<not>=|!)',//утверждения - assertions
-                '(?<type>\\>)',// однократные шаблоны - onlyonce
-                '\\(\\?(?<this>)(?<plus>[imsxUXJ]*(?:\\-(?<minus>[imsxUXJ]*))?)(?<type>\\:|\\))',// флаги
-                '\\(\\?\\((?<plus>[imsxUXJ]*(?:\\-(?<minus>[imsxUXJ]*))?)(?<type>\\))',// флаги
-                '(?<type>P?<)(?<value>[a-z0-9_]+)\\>', // группа
-                '(?<type>\\\')(?<value>[a-z0-9_]+)\\\'', // группа
-                '(?<type>P=)(?<value>[a-z0-9_]+)\\)', // ссылка на группу v
-                '(?<type>#)(?<value>[^)]*)\\)', // комментарий V
-                '(?<type>\d+)\\)', //ссылка на рекурсивный подшаблон
-                '(?<type>P>)(?<value>[a-z0-9_]+)\\)', // ссылка на рекурсиную группу V
-                '(?<type>&)(?<value>[a-z0-9_]+)\\)', // ссылка на рекурсиную группу V
-                '(?<type>R)\\)', //рекурсивный шаблон V
-                '(?<type>\\()(?<value>\\d+|R)\\)', // условия
-                '(?<type>\\()\\?(?:<|)(?:=|!)', // условия
-            ]) . ')');
-
-            if ($match === []) {
-                throw new LogicException('Invalid parser.');
-            }
-
-            $type = $match['type'];
-
-            if (is_numeric($type)) {
-                return (new CustomFunction('group_number'))->setOption(value: (int) $type, type: 'recursive');
-            }
-
-            return match ($type) {
-                '&','P>','P=' => (new CustomFunction('group_number'))->setOption(value: $match['value'], type: $type),
-                '#' => (new CustomFunction('comment'))->setOption(value: $match['value']),
-                'R' => new CustomFunction('recursive'),
-                //')' =>
-                //'(' => (new CustomFunction('condition'))->setOption(),
-            };
-
-
-
-
-            match ($type) {
-                '' => $result->setOption(direction: ['<' => 'before', '' => 'after'][$match['direction']], not: $match['not'] === '!'),
-                '>' => $result->setOption(once: true),
-                'P<','<','\'' => $result->setOption(name: $match['value'], type: $type),
-            };
-        }
-
-
-
-
-
-
-        throw new LogicException('Invalid pattern');
-    }
-
-    private function getSubPattern(int $i, ?int $length = null): string
-    {
-        return substr($this->regularExpression->pattern, $i, $length);
-    }
-
-    private function checkCharClasses(int &$i): string|CustomFunction
-    {
-        $match = $this->match($i, '\\[\\:(?:(?<negative>)\\^)(?<value>'
-            . implode('|', self::CHAR_CLASSES) . ')\\:\\]');
-
-        if (count($match) === 0) {
-            return '[';
-        }
-
-        $result = new CustomFunction('char_class');
-        $result->setOption(value: $match['value']);
-        $result->setOption(negative: isset($match['negative']));
-        $i += strlen($match[0]);
-
-        return $result;
+        return new self(RegularExpression::fromPattern($pattern));
     }
 
     /**
-     * @return string[]
+     * @param GroupFunction[] $groups
      */
-    private function match(int $pos, string $pattern): array
+    private function prepare(ParserResult $value, ParentFunctionInterface $parent, array &$groups): FunctionInterface
     {
-        try {
-            return (new RegularExpression('{', "^.{$pos}}{$pattern}", '}', RegularExpression::PCRE_INFO_JCHANGED))
-                ->match($this->regularExpression->pattern);
-        } catch (RegularExpressionException $exception) {
-            throw new LogicException('Invalid internal pattern.', 0, $exception);
-        }
+        return match ($value->name) {
+            'chars' => $this->prepareChars($value, $parent),
+        };
+    }
+
+    private function prepareChars(ParserResult $value, ParentFunctionInterface $parent): CharFunction
+    {
+        return CharFunction::fromArray($value->options, $parent);
+    }
+
+    private function escape(string $value): string
+    {
+        return $value === '' ? '' : '\\' . implode('\\', str_split($value));
     }
 
     private function charToHex(string $value): string
     {
         return dechex(ord(strtoupper($value)) ^ 0x40);
-    }
-
-    private function getNumberFunction(string $value, int $groupCount): CustomFunction
-    {
-        return in_array($value[0], ['-', '0'])
-            || strlen($value) > 3
-            || ($value !== '0' && strlen($value) === 1)
-            || preg_match('{[89]}', $value)
-            || (int) $value <= $groupCount
-                ? (new CustomFunction('group_number'))->setOption(type: '', value: (int) $value)
-                : (new CustomFunction('eight'))->setOption(value: $value);
     }
 
     private function getSingleCodes(): string
@@ -693,10 +411,4 @@ class RegularExpressionInformation
             self::CLASS_UNI_CODES,
         ));
     }
-
-    private function escape(string $value): string
-    {
-        return $value === '' ? '' : '\\' . implode('\\', str_split($value));
-    }
 }
-//   (?<!\\)(?:\\\\)*\[(?:\\.|[^\\\[\]])*\]

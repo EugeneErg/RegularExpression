@@ -76,7 +76,7 @@ class RegularExpressions
                 $count,
             )
             : preg_replace(
-                array_map(fn(RegularExpression $value): string => (string) $value, $this->items),
+                array_map(fn (RegularExpression $value): string => (string) $value, $this->items),
                 $replacement instanceof Strings ? $replacement->items : $replacement,
                 $subject instanceof Strings ? $subject->items : $subject,
                 $limit ?? -1,
