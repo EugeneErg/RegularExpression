@@ -10,7 +10,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 /**
  * @mixin ParentFunctionInterface
  */
-trait TraitChildren
+trait TraitSetChildren
 {
     /** @var ChildFunctionInterface[] */
     private array $children;

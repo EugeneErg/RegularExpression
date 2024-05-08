@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
-use EugeneErg\RegularExpression\Functions\Traits\TraitParent;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
 class LinkFunction implements ChildFunctionInterface
 {
-    use TraitParent;
+    use TraitSetParent;
 
     public function __construct(
         public readonly GroupFunction $target,

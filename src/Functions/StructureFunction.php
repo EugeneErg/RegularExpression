@@ -4,27 +4,18 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-use EugeneErg\RegularExpression\Functions\GroupFunction\Type;
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 
-class StructureFunction implements FunctionWithChildrenInterface
+class StructureFunction extends GroupFunction
 {
-    public function __construct(
-        public readonly int $number,
-        public readonly ?string $name = null,
-        public readonly int $addModifiers = 0,
-        public readonly int $subModifiers = 0,
-        public readonly bool $not = false,
-        public readonly ?bool $direction = null,
-        public readonly GroupFunction\Type $type = GroupFunction\Type::Group,
-        public readonly bool $once = false,
-    ) {
+    public function __construct(int $addModifiers = 0)
+    {
+        parent::__construct(0, null, $addModifiers);
     }
 
     public function __toString(): string
     {
-        if ($this->type !== GroupFunction\Type::Enum) {
 
-        }
     }
 
     public function getMinLength(): int
@@ -47,7 +38,7 @@ class StructureFunction implements FunctionWithChildrenInterface
         // TODO: Implement jsonSerialize() method.
     }
 
-    public function getParent(): ?FunctionWithChildrenInterface
+    public function getParent(): ?ParentFunctionInterface
     {
         // TODO: Implement getParent() method.
     }
@@ -62,7 +53,7 @@ class StructureFunction implements FunctionWithChildrenInterface
         // TODO: Implement getChildren() method.
     }
 
-    public static function fromArray(array $data, ?FunctionWithChildrenInterface $parent = null, FunctionInterface ...$children,): static
+    public static function fromArray(array $data, ?ParentFunctionInterface $parent = null, FunctionInterface ...$children,): static
     {
         // TODO: Implement fromArray() method.
     }

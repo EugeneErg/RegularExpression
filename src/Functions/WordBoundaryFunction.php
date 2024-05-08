@@ -6,12 +6,12 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
-use EugeneErg\RegularExpression\Functions\Traits\TraitParent;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
 class WordBoundaryFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
-    use TraitParent;
+    use TraitSetParent;
 
     public function __construct(public readonly bool $not)
     {

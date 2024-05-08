@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-class CountFunction implements FunctionInterface, ParentFunctionInterface
+use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
+
+class CountFunction implements ParentFunctionInterface, ChildFunctionInterface
 {
-    public readonly FunctionInterface $root;
+    use TraitSetParent;
+    use TraitSetChildren;
 
     public function __construct(
         public readonly int $from,
         public readonly ?int $to,
         public readonly bool $lazy,
-        public readonly FunctionInterface $child,
-        public readonly ?FunctionInterface $parent = null,
     ) {
-        $this->root = $this->parent?->getRoot() ?? $this;
     }
 
     public function __toString(): string
@@ -39,42 +42,22 @@ class CountFunction implements FunctionInterface, ParentFunctionInterface
         return match ($this->to) {
             $this->from => match ($this->from) {
                 0 => '',
-                1 => $this->child,
-                default => $this->child . '{' . $this->from . '}',
+                1 => $this->children[0],
+                default => $this->children[0] . '{' . $this->from . '}',
             },
-            1 => $this->child . '?' . ($this->lazy ? '?' : ''),
+            1 => $this->children[0] . '?' . ($this->lazy ? '?' : ''),
             null => match ($this->from) {
-                    0 => $this->child . '*',
-                    1 => $this->child . '+',
-                    default => $this->child . '{' . $this->from . ',}',
+                    0 => $this->children[0] . '*',
+                    1 => $this->children[0] . '+',
+                    default => $this->children[0] . '{' . $this->from . ',}',
                 } . ($this->lazy ? '?' : ''),
-            default => $this->child . '{' . $this->from . ',' . $this->to . '}',
+            default => $this->children[0] . '{' . $this->from . ',' . $this->to . '}',
         };
-
     }
 
-    public function getRoot(): FunctionInterface
+    public static function fromArray(array $data): static
     {
-        return $this->root;
-    }
-
-    public function getParent(): ?FunctionInterface
-    {
-        return $this->parent;
-    }
-
-    public static function fromParseResult(
-        array $options,
-        ?FunctionInterface $parent = null,
-        FunctionInterface ...$children
-    ): ParentFunctionInterface {
-        return new self(
-            $options['from'],
-            $options['to'],
-            $options['lazy'],
-            $children[array_key_first($children)],
-            $parent,
-        );
+        return new self($data['from'], $data['to'], $data['lazy']);
     }
 
     public function getMinLength(): int
@@ -83,7 +66,7 @@ class CountFunction implements FunctionInterface, ParentFunctionInterface
             return 0;
         }
 
-        $result = $this->child->getMinLength();
+        $result = $this->children[0]->getMinLength();
 
         if ($result === 0) {
             return 0;
@@ -98,7 +81,7 @@ class CountFunction implements FunctionInterface, ParentFunctionInterface
             return null;
         }
 
-        $result = $this->child->getMaxLength();
+        $result = $this->children[0]->getMaxLength();
 
         if ($result === null) {
             return null;
@@ -107,13 +90,13 @@ class CountFunction implements FunctionInterface, ParentFunctionInterface
         return $result * $this->to;
     }
 
-    public function generate(string $from): string
+    public function generate(string $from, bool $not): string
     {
         $value = rand($this->from, $this->to ?? ($this->from + 100));
         $result = '';
 
         for ($i = 0; $i < $value; $i++) {
-            $result .= $this->child->generate($from);
+            $result .= $this->children[0]->generate($from, $not);
         }
 
         return $result;
@@ -122,10 +105,5 @@ class CountFunction implements FunctionInterface, ParentFunctionInterface
     public function jsonSerialize(): string
     {
         return $this->__toString();
-    }
-
-    public function getChildren(): array
-    {
-        return [$this->child];
     }
 }

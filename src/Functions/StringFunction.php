@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-use EugeneErg\RegularExpression\Parser\ParserResult;
+use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class StringFunction implements FunctionInterface
+class StringFunction implements ChildFunctionInterface
 {
-    public readonly FunctionInterface $root;
+    use TraitSetParent;
 
-    public function __construct(
-        public readonly string $value,
-        public readonly ?FunctionInterface $parent = null,
-    ) {
-        $this->root = $this->parent?->getRoot() ?? $this;
+    public function __construct(public readonly string $value)
+    {
     }
 
     public function __toString(): string
@@ -32,7 +30,7 @@ class StringFunction implements FunctionInterface
         return strlen($this->value);
     }
 
-    public function generate(string $from): string
+    public function generate(string $from, bool $not): string
     {
         return $this->value;
     }
@@ -42,18 +40,8 @@ class StringFunction implements FunctionInterface
         return $this->__toString();
     }
 
-    public static function fromParseResult(array $options, ?FunctionInterface $parent = null): FunctionInterface
+    public static function fromArray(array $data): static
     {
-        return new self($options['value'], $parent);
-    }
-
-    public function getRoot(): FunctionInterface
-    {
-        return $this->root;
-    }
-
-    public function getParent(): ?FunctionInterface
-    {
-        return $this->parent;
+        return new self($data['value'],);
     }
 }

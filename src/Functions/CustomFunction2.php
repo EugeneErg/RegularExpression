@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
+
 final class CustomFunction implements FunctionInterface
 {
     private array $children;

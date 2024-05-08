@@ -6,13 +6,13 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
-use EugeneErg\RegularExpression\Functions\Traits\TraitChildren;
-use EugeneErg\RegularExpression\Functions\Traits\TraitParent;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
 
 class CharFunction implements ParentFunctionInterface, ChildFunctionInterface
 {
-    use TraitParent;
-    use TraitChildren;
+    use TraitSetParent;
+    use TraitSetChildren;
 
     public function __construct(public readonly bool $not)
     {
@@ -41,33 +41,15 @@ class CharFunction implements ParentFunctionInterface, ChildFunctionInterface
         return $this->__toString();
     }
 
-    public function getParent(): ?FunctionWithChildrenWithParentInterface
-    {
-        return $this->parent;
-    }
-
-    public function getRoot(): FunctionInterface
-    {
-        return $this->root;
-    }
-
-    public function getChildren(): array
-    {
-        return $this->children;
-    }
-
-    public function generate(string $from): string
+    public function generate(string $from, bool $not): string
     {
         $key = array_rand($this->children);
 
-        return $this->children[$key]->generate($from);
+        return $this->children[$key]->generate($from, $not === $this->not);
     }
 
-    public static function fromArray(
-        array                                    $data,
-        ?FunctionWithChildrenWithParentInterface $parent = null,
-        FunctionInterface ...$children,
-    ): static {
-        return new self($data['not'] ?? false, $parent, ...$children);
+    public static function fromArray(array $data): static
+    {
+        return new self($data['not'] ?? false);
     }
 }

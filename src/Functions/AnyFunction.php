@@ -4,46 +4,33 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-class AnyFunction implements FunctionInterface
+use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
+
+class AnyFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
-
-    public readonly FunctionInterface $root;
-
-    public function __construct(
-        public readonly ?FunctionWithChildrenInterface $parent,
-    ) {
-        $this->root = $this->parent?->getRoot() ?? $this;
-    }
+    use TraitSetParent;
 
     public function __toString(): string
     {
         return '.';
     }
 
-    public function getRoot(): FunctionInterface
+    public static function fromArray(array $data): static
     {
-        return $this->root;
-    }
-
-    public function getParent(): ?FunctionWithChildrenInterface
-    {
-        return $this->parent;
-    }
-
-    public static function fromArray(array $data, ?FunctionInterface $parent = null): static
-    {
-        return new self($parent);
+        return new self();
     }
 
     public function getMinLength(): int
     {
-        return 0;
+        return 1;
     }
 
     public function getMaxLength(): ?int
     {
-        return 0;
+        return 1;
     }
 
     public function jsonSerialize(): string

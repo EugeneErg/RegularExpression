@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions\Traits;
 
-use EugeneErg\RegularExpression\Functions\FunctionInterface;
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 use EugeneErg\RegularExpression\RegularExpression;
 use LogicException;
 use Throwable;

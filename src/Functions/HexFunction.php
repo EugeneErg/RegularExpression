@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-class HexFunction implements FunctionInterface
-{
-    public readonly FunctionInterface $root;
+use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-    public function __construct(
-        public readonly string $value,
-        public readonly ?FunctionInterface $parent = null,
-    ) {
-        $this->root = $this->parent?->getRoot() ?? $this;
+class HexFunction implements ChildFunctionInterface
+{
+    use TraitSetParent;
+
+    public function __construct(public readonly string $value)
+    {
     }
 
     public function __toString(): string
     {
-
         return '\\x' . (strlen($this->value) > 2 ? '{' . $this->value . '}' : $this->value);
     }
 
-    public static function fromArray(array $data, ?FunctionInterface $parent = null): FunctionInterface
+    public static function fromArray(array $data): static
     {
-        return new self($data['value'], $parent);
+        return new self($data['value']);
     }
 
     public function getMinLength(): int
@@ -41,18 +41,9 @@ class HexFunction implements FunctionInterface
         return $this->__toString();
     }
 
-    public function generate(string $from): string
+    public function generate(string $from, bool $not): string
     {
+        //todo not
         return json_decode('"' . $this->value . '"');
-    }
-
-    public function getRoot(): FunctionInterface
-    {
-        return $this->root;
-    }
-
-    public function getParent(): ?FunctionInterface
-    {
-        return $this->parent;
     }
 }

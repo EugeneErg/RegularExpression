@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-class BetweenFunction implements FunctionInterface
+use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
+
+class BetweenFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
-
-    public readonly FunctionInterface $root;
+    use TraitSetParent;
 
     public function __construct(
         public readonly string $from,
         public readonly string $to,
-        public readonly ?FunctionWithChildrenInterface $parent,
     ) {
-        $this->root = $parent?->getRoot() ?? $this;
     }
 
     public function __toString(): string
@@ -23,9 +24,9 @@ class BetweenFunction implements FunctionInterface
         return $this->from . '-' . $this->to;
     }
 
-    public static function fromArray(array $data, ?FunctionWithChildrenInterface $parent = null): static
+    public static function fromArray(array $data): static
     {
-        return new self($data['from'], $data['to'], $parent);
+        return new self($data['from'], $data['to']);
     }
 
     public function getMinLength(): int
@@ -41,15 +42,5 @@ class BetweenFunction implements FunctionInterface
     public function jsonSerialize(): string
     {
         return $this->__toString();
-    }
-
-    public function getParent(): ?FunctionWithChildrenInterface
-    {
-        return $this->parent;
-    }
-
-    public function getRoot(): FunctionInterface
-    {
-        return $this->root;
     }
 }

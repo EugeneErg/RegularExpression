@@ -4,49 +4,43 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
+use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
+use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
+
 class ClassFunction implements FunctionInterface
 {
-    public function __construct()
-    {
+    use TraitGenerate;
+    use TraitSetParent;
+
+    public function __construct(
+        public readonly bool $not,
+        public readonly string $value,
+    ) {
     }
 
     public function __toString(): string
     {
-        // TODO: Implement __toString() method.
+        return '[' . ($this->not ? '^' : '') . ':' . $this->value . ':]';
     }
 
-    public static function fromArray(array $data, ?FunctionWithChildrenInterface $parent = null): static
+    public static function fromArray(array $data): static
     {
-        // TODO: Implement fromArray() method.
+        return new self($data['not'], $data['value']);
     }
 
     public function getMinLength(): int
     {
-        // TODO: Implement getMinLength() method.
+        return 1;
     }
 
     public function getMaxLength(): ?int
     {
-        // TODO: Implement getMaxLength() method.
-    }
-
-    public function generate(string $from): string
-    {
-        // TODO: Implement generate() method.
+        return 1;
     }
 
     public function jsonSerialize(): string
     {
-        // TODO: Implement jsonSerialize() method.
-    }
-
-    public function getParent(): ?FunctionWithChildrenInterface
-    {
-        // TODO: Implement getParent() method.
-    }
-
-    public function getRoot(): FunctionInterface
-    {
-        // TODO: Implement getRoot() method.
+        return $this->__toString();
     }
 }

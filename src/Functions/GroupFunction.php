@@ -6,13 +6,13 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
-use EugeneErg\RegularExpression\Functions\Traits\TraitChildren;
-use EugeneErg\RegularExpression\Functions\Traits\TraitParent;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
+use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
 class GroupFunction implements ParentFunctionInterface, ChildFunctionInterface
 {
-    use TraitParent;
-    use TraitChildren;
+    use TraitSetParent;
+    use TraitSetChildren;
 
     public function __construct(
         public readonly int $number,
