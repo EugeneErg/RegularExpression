@@ -8,7 +8,7 @@ use EugeneErg\RegularExpression\Functions\CharFunction;
 use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\GroupFunction;
-use EugeneErg\RegularExpression\Functions\StructureFunction;
+use EugeneErg\RegularExpression\Functions\RootFunction;
 use EugeneErg\RegularExpression\Parser\ParserItem;
 use EugeneErg\RegularExpression\Parser\ParserOption;
 use EugeneErg\RegularExpression\Parser\ParserResult;
@@ -113,7 +113,7 @@ class RegularExpressionInformation
 
     private const ALL_SPECIAL = '{}]<>-=#:()[?+*^$.|\\!';
 
-    private readonly FunctionInterface $structure;
+    private readonly FunctionInterface $root;
 
     public function __construct(RegularExpression $regularExpression)
     {
@@ -386,11 +386,21 @@ class RegularExpressionInformation
         }
 
         $groups = [];
-        $this->structure = $this->prepare(
+        $this->root = $this->prepare(
             $result,
-            new StructureFunction($regularExpression->modifiers),
+            new RootFunction($regularExpression->modifiers),
             $groups,
         );
+    }
+
+    public function getMinLength(): int
+    {
+        return $this->root->getMinLength();
+    }
+
+    public function getMaxLength(): ?int
+    {
+        return $this->root->getMaxLength();
     }
 
     /**

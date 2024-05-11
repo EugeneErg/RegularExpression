@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
+use EugeneErg\RegularExpression\Functions\Contracts\RootFunctionInterface;
 
-class StructureFunction extends GroupFunction
+class RootFunction extends AbstractStructure implements RootFunctionInterface
 {
     public function __construct(int $addModifiers = 0)
     {
@@ -38,22 +38,12 @@ class StructureFunction extends GroupFunction
         // TODO: Implement jsonSerialize() method.
     }
 
-    public function getParent(): ?ParentFunctionInterface
+    public function getRoot(): RootFunctionInterface
     {
-        // TODO: Implement getParent() method.
+        return $this;
     }
 
-    public function getRoot(): FunctionInterface
-    {
-        // TODO: Implement getRoot() method.
-    }
-
-    public function getChildren(): array
-    {
-        // TODO: Implement getChildren() method.
-    }
-
-    public static function fromArray(array $data, ?ParentFunctionInterface $parent = null, FunctionInterface ...$children,): static
+    public static function fromArray(array $data): static
     {
         // TODO: Implement fromArray() method.
     }
