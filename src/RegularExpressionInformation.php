@@ -211,7 +211,14 @@ class RegularExpressionInformation
                         'hex' => $hex,
                         'between' => [
                             'options' => [
-                                '(?:(?<from>[^' . $this->escape(self::CHARS_SPECIAL) . ')|\\\\(?<from>[' . $this->escape(self::ALL_SPECIAL) . ']))\\-(?:(?<to>[^' . $this->escape(self::CHARS_SPECIAL) . '])|\\\\(?<to>[' . $this->escape(self::ALL_SPECIAL) . ']))' => ['from', 'to'],
+                                '(?:(?<from>[^'
+                                . $this->escape(self::CHARS_SPECIAL)
+                                . ')|\\\\(?<from>['
+                                . $this->escape(self::ALL_SPECIAL)
+                                . ']))\\-(?:(?<to>[^'
+                                . $this->escape(self::CHARS_SPECIAL)
+                                . '])|\\\\(?<to>[' . $this->escape(self::ALL_SPECIAL)
+                                . ']))' => ['from', 'to'],
                             ],
                         ],
                         'string' => [
