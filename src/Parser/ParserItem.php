@@ -22,6 +22,23 @@ final class ParserItem
         $this->options = $options;
     }
 
+    public static function fromArray(array $data): self
+    {
+        $result = new self(
+            self::regularExpressionFromArray($data['begin'] ?? null),
+            self::regularExpressionFromArray($data['end'] ?? null),
+            ...self::optionsFromArray((array) ($data['options'] ?? [])),
+        );
+
+        if (isset($data['children'])) {
+            foreach ($data['children'] as $name => $child) {
+                $result->addChildren(...[$name => self::fromArray($child)]);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @throws RegularExpressionException
      */
@@ -34,12 +51,54 @@ final class ParserItem
         );
     }
 
-
     public function addChildren(ParserItem ...$children): self
     {
         $this->children = array_replace($this->children, $children);
 
         return $this;
+    }
+
+    private static function regularExpressionFromArray(null|string|RegularExpression $value): ?RegularExpression
+    {
+        return is_string($value)
+            ? new RegularExpression('{', $value, '}', RegularExpression::PCRE_INFO_JCHANGED)
+            : $value;
+    }
+
+    /**
+     * @param array<string, callable|mixed[]> $options
+     * @return ParserOption[]
+     */
+    private static function optionsFromArray(array $options): array
+    {
+        $result = [];
+
+        foreach ($options as $pattern => $option) {
+            if (is_int($pattern) && is_string($option)) {
+                $pattern = $option;
+                $option = [];
+            }
+
+            $result[] = new ParserOption(
+                self::regularExpressionFromArray($pattern),
+                is_callable($option) ? $option : function (array $match) use ($option): array {
+                    $result = [];
+
+                    foreach ((array) $option as $field => $value) {
+                        if (is_int($field)) {
+                            $field = $value;
+                            $value = $match[$value] ?? null;
+                        }
+
+                        $result[$field] = $value;
+                    }
+
+                    return $result;
+                },
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -69,9 +128,12 @@ final class ParserItem
     /**
      * @throws RegularExpressionException
      */
-    public static function equal(string $value): self
+    public static function equal(string $value, callable $callback = null): self
     {
-        return self::options(new ParserOption(new RegularExpression('{', $value, '}', RegularExpression::PCRE_INFO_JCHANGED), fn () => []));
+        return self::options(new ParserOption(
+            new RegularExpression('{', $value, '}', RegularExpression::PCRE_INFO_JCHANGED),
+            $callback ?? fn () => [],
+        ));
     }
 
     public static function options(ParserOption ...$options): self

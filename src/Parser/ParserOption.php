@@ -34,6 +34,19 @@ final class ParserOption
         );
     }
 
+    private static function getFields(string ...$fields): callable
+    {
+        return function (array $match) use ($fields): array {
+            $result = [];
+
+            foreach ($fields as $field) {
+                $result[$field] = $match[$field] ?? null;
+            }
+
+            return $result;
+        };
+    }
+
     /**
      * @throws RegularExpressionException
      */
@@ -41,15 +54,7 @@ final class ParserOption
     {
         return new self(
             $pattern instanceof RegularExpression ? $pattern : new RegularExpression('{', $pattern, '}', RegularExpression::PCRE_INFO_JCHANGED),
-            function (array $match) use ($fields): array {
-                $result = [];
-
-                foreach ($fields as $field) {
-                    $result[$field] = $match[$field] ?? null;
-                }
-
-                return $result;
-            }
+            self::getFields(...$fields),
         );
     }
 }
