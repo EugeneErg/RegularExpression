@@ -18,7 +18,7 @@ trait TraitGenerate
     {
         //todo $not
         try {
-            $matches = (new RegularExpression('{', $this . '+', '}'))->matchAll($from);
+            $matches = (new RegularExpression('{', $this.'+', '}'))->matchAll($from);
         } catch (Throwable $exception) {
             throw new LogicException('Invalid pattern.', previous: $exception);
         }

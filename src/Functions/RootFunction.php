@@ -15,7 +15,6 @@ class RootFunction extends AbstractStructure implements RootFunctionInterface
 
     public function __toString(): string
     {
-
     }
 
     public function getMinLength(): int

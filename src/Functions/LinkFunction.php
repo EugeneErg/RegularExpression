@@ -22,18 +22,18 @@ class LinkFunction implements ChildFunctionInterface
     public function __toString(): string
     {
         if ($this->link === 0) {
-            return '(' . ($this->isFirstInCondition ? '' : '?') . 'R)';
+            return '('.($this->isFirstInCondition ? '' : '?').'R)';
         }
 
         if ($this->isFirstInCondition) {
-            return '(' . $this->link . ')';
+            return '('.$this->link.')';
         }
 
         if ($this->isRecursive) {
-            return '(?' . (is_string($this->link) ? '&' : '') . $this->link . ')';
+            return '(?'.(is_string($this->link) ? '&' : '').$this->link.')';
         }
 
-        return '\g' . (is_string($this->link) ? '<' . $this->link . '>' : $this->link);
+        return '\g'.(is_string($this->link) ? '<'.$this->link.'>' : $this->link);
     }
 
     public static function fromArray(array $data): static

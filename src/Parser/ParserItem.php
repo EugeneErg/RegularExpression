@@ -51,7 +51,7 @@ final class ParserItem
         );
     }
 
-    public function addChildren(ParserItem ...$children): self
+    public function addChildren(self ...$children): self
     {
         $this->children = array_replace($this->children, $children);
 
@@ -141,7 +141,7 @@ final class ParserItem
         return new self(null, null, ...$options);
     }
 
-    public static function children(ParserItem ...$children): self
+    public static function children(self ...$children): self
     {
         return (new self())->addChildren(...$children);
     }

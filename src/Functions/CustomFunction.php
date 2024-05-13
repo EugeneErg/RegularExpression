@@ -9,20 +9,22 @@ use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 final class CustomFunction implements FunctionInterface
 {
     private array $children;
+
     private ?CustomFunction $parent;
+
     private array $options;
 
     public function __construct(public readonly string $name)
     {
     }
 
-    public function addChild(string|CustomFunction ...$children): void
+    public function addChild(string|self ...$children): void
     {
         $lastKey = $this->getLastKey();
         $lastChildIsString = is_string($this->children[$lastKey]);
 
         foreach ($children as $child) {
-            if ($child instanceof CustomFunction) {
+            if ($child instanceof self) {
                 $this->children[] = $child;
                 $lastKey++;
                 $lastChildIsString = false;
@@ -37,14 +39,14 @@ final class CustomFunction implements FunctionInterface
         }
     }
 
-    public function setParent(?CustomFunction $parent): void
+    public function setParent(?self $parent): void
     {
         $this->parent = $parent;
     }
 
     public function __toString(): string
     {
-        return preg_quote($this->name) . implode(',', array_map(
+        return preg_quote($this->name).implode(',', array_map(
             fn (string|CustomFunction $value): string => is_string($value) ? preg_quote($value) : (string) $value,
             $this->children,
         ));
@@ -63,12 +65,12 @@ final class CustomFunction implements FunctionInterface
         ];
     }
 
-    public function getParent(): ?CustomFunction
+    public function getParent(): ?self
     {
         return $this->parent;
     }
 
-    public function getLastChild(): null|string|CustomFunction
+    public function getLastChild(): null|string|self
     {
         $result = end($this->children);
 
@@ -86,7 +88,7 @@ final class CustomFunction implements FunctionInterface
     {
         $this->children[$this->getLastKey()] = $value;
 
-        if ($value instanceof CustomFunction) {
+        if ($value instanceof self) {
             $value->setParent($this);
         }
     }

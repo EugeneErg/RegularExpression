@@ -6,10 +6,12 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 
-final class CustomFunction implements FunctionInterface
+final class CustomFunction2 implements FunctionInterface
 {
     private array $children;
+
     private ?CustomFunction $parent;
+
     private array $options;
 
     public function __construct(public readonly StringFunction $name)
@@ -44,10 +46,10 @@ final class CustomFunction implements FunctionInterface
 
     public function __toString(): StringFunction
     {
-        return preg_quote($this->name) . implode(',', array_map(
-                fn (StringFunction|CustomFunction $value): StringFunction => is_string($value) ? preg_quote($value) : (string) $value,
-                $this->children,
-            ));
+        return preg_quote($this->name).implode(',', array_map(
+            fn (StringFunction|CustomFunction $value): StringFunction => is_string($value) ? preg_quote($value) : (string) $value,
+            $this->children,
+        ));
     }
 
     public function getChildren(): Functions

@@ -24,7 +24,7 @@ class DecimalFunction implements ChildFunctionInterface
 
     public function __toString(): string
     {
-        return '\\' . self::MAP[$this->not ? self::NOT : 0];
+        return '\\'.self::MAP[$this->not ? self::NOT : 0];
     }
 
     public static function fromArray(array $data): static

@@ -14,6 +14,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\RootFunctionInterface;
 trait TraitSetParent
 {
     public readonly ParentFunctionInterface $parent;
+
     public readonly RootFunctionInterface $root;
 
     public function getParent(): ParentFunctionInterface

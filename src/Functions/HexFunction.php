@@ -18,7 +18,7 @@ class HexFunction implements ChildFunctionInterface
 
     public function __toString(): string
     {
-        return '\\x' . (strlen($this->value) > 2 ? '{' . $this->value . '}' : $this->value);
+        return '\\x'.(strlen($this->value) > 2 ? '{'.$this->value.'}' : $this->value);
     }
 
     public static function fromArray(array $data): static
@@ -44,6 +44,6 @@ class HexFunction implements ChildFunctionInterface
     public function generate(string $from, bool $not): string
     {
         //todo not
-        return json_decode('"' . $this->value . '"');
+        return json_decode('"'.$this->value.'"');
     }
 }

@@ -81,8 +81,8 @@ class UnicodeFunction implements ChildFunctionInterface
     {
         return match (strlen($this->value)) {
             0 => '\\X',
-            1 => '\\' . ($this->not ? 'P' : 'p') . $this->value,
-            default => '\\' . ($this->not ? 'P' : 'p') . '{' . $this->value . '}',
+            1 => '\\'.($this->not ? 'P' : 'p').$this->value,
+            default => '\\'.($this->not ? 'P' : 'p').'{'.$this->value.'}',
         };
     }
 

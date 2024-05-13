@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression;
 
-class ResultCount
+readonly class ResultCount
 {
     public function __construct(
-        public readonly int $count,
-        public readonly string $value,
+        public int $count,
+        public string $value,
     ) {
     }
 }

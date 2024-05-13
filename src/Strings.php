@@ -9,7 +9,7 @@ class Strings
     /** @var string[] */
     public readonly array $items;
 
-    public function __construct(string... $values)
+    public function __construct(string ...$values)
     {
         $this->items = $values;
     }

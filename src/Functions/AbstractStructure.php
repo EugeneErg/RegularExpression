@@ -26,7 +26,6 @@ abstract class AbstractStructure implements ParentFunctionInterface
     public function __toString(): string
     {
         if ($this->type !== GroupFunction\Type::Enum) {
-
         }
     }
 
@@ -54,5 +53,4 @@ abstract class AbstractStructure implements ParentFunctionInterface
     {
         // TODO: Implement fromArray() method.
     }
-
 }

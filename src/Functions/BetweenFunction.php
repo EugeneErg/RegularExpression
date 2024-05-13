@@ -21,7 +21,7 @@ class BetweenFunction implements ChildFunctionInterface
 
     public function __toString(): string
     {
-        return $this->from . '-' . $this->to;
+        return $this->from.'-'.$this->to;
     }
 
     public static function fromArray(array $data): static

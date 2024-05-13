@@ -10,6 +10,7 @@ use EugeneErg\RegularExpression\RegularExpressionException;
 class ParserProcess
 {
     private int $offset;
+
     public readonly ?ParserResult $result;
 
     /**
@@ -73,7 +74,7 @@ class ParserProcess
      */
     private function match(RegularExpression $pattern): array
     {
-        $result = RegularExpression::fromPattern('{(?<=\\A.{' . $this->offset . '})' . $pattern->pattern . '}J')
+        $result = RegularExpression::fromPattern('{(?<=\\A.{'.$this->offset.'})'.$pattern->pattern.'}J')
             ->match($this->subject);
 
         if ($result !== []) {

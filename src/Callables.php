@@ -9,7 +9,7 @@ class Callables
     /** @var array<callable> */
     public readonly array $items;
 
-    public function __construct(callable... $callables)
+    public function __construct(callable ...$callables)
     {
         $this->items = $callables;
     }

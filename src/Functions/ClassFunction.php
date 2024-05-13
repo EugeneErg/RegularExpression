@@ -21,7 +21,7 @@ class ClassFunction implements FunctionInterface
 
     public function __toString(): string
     {
-        return '[' . ($this->not ? '^' : '') . ':' . $this->value . ':]';
+        return '['.($this->not ? '^' : '').':'.$this->value.':]';
     }
 
     public static function fromArray(array $data): static

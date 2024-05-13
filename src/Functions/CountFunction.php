@@ -43,15 +43,15 @@ class CountFunction implements ParentFunctionInterface, ChildFunctionInterface
             $this->from => match ($this->from) {
                 0 => '',
                 1 => $this->children[0],
-                default => $this->children[0] . '{' . $this->from . '}',
+                default => $this->children[0].'{'.$this->from.'}',
             },
-            1 => $this->children[0] . '?' . ($this->lazy ? '?' : ''),
+            1 => $this->children[0].'?'.($this->lazy ? '?' : ''),
             null => match ($this->from) {
-                    0 => $this->children[0] . '*',
-                    1 => $this->children[0] . '+',
-                    default => $this->children[0] . '{' . $this->from . ',}',
-                } . ($this->lazy ? '?' : ''),
-            default => $this->children[0] . '{' . $this->from . ',' . $this->to . '}',
+                0 => $this->children[0].'*',
+                1 => $this->children[0].'+',
+                default => $this->children[0].'{'.$this->from.',}',
+            }.($this->lazy ? '?' : ''),
+            default => $this->children[0].'{'.$this->from.','.$this->to.'}',
         };
     }
 

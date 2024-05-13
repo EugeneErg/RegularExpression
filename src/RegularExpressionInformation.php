@@ -184,7 +184,7 @@ class RegularExpressionInformation
                     'children' => [
                         'class' => [
                             'options' => [
-                                '\\[(?<not>\\^)?\\:(?<value>' . implode('|', self::CHAR_CLASSES) . ')\\:\\]' => fn (array $match) => [
+                                '\\[(?<not>\\^)?\\:(?<value>'.implode('|', self::CHAR_CLASSES).')\\:\\]' => fn (array $match) => [
                                     'value' => $match['value'],
                                     'not' => isset($match['not']),
                                 ],
@@ -196,12 +196,12 @@ class RegularExpressionInformation
                         'word_boundary' => ['options' => ['\\\\b' => ['not' => false]]],
                         'unicode' => [
                             'options' => [
-                                '\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])' => fn (array $match) => [
+                                '\\\\(?<type>p|P)(?<value>['.$this->getSingleCodes().'])' => fn (array $match) => [
                                     'value' => $match['value'],
                                     'not' => $match['type'] === 'P',
                                     'type' => 'value',
                                 ],
-                                '\\\\(?<type>p|P)\\{(?<not>\\^)?(?<value>' . $this->getUniCodes() . ')\\}' => fn (array $match) => [
+                                '\\\\(?<type>p|P)\\{(?<not>\\^)?(?<value>'.$this->getUniCodes().')\\}' => fn (array $match) => [
                                     'value' => $match['value'],
                                     'not' => isset($match['not']) === ($match['type'] === 'p'),
                                     'type' => 'brace',
@@ -212,19 +212,19 @@ class RegularExpressionInformation
                         'between' => [
                             'options' => [
                                 '(?:(?<from>[^'
-                                . $this->escape(self::CHARS_SPECIAL)
-                                . ')|\\\\(?<from>['
-                                . $this->escape(self::ALL_SPECIAL)
-                                . ']))\\-(?:(?<to>[^'
-                                . $this->escape(self::CHARS_SPECIAL)
-                                . '])|\\\\(?<to>[' . $this->escape(self::ALL_SPECIAL)
-                                . ']))' => ['from', 'to'],
+                                .$this->escape(self::CHARS_SPECIAL)
+                                .')|\\\\(?<from>['
+                                .$this->escape(self::ALL_SPECIAL)
+                                .']))\\-(?:(?<to>[^'
+                                .$this->escape(self::CHARS_SPECIAL)
+                                .'])|\\\\(?<to>['.$this->escape(self::ALL_SPECIAL)
+                                .']))' => ['from', 'to'],
                             ],
                         ],
                         'string' => [
                             'options' => [
-                                '\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])' => 'value',
-                                '(?<value>[^' . $this->escape(self::CHARS_SPECIAL) . '])' => 'value',
+                                '\\\\(?<value>['.$this->escape(self::ALL_SPECIAL).'])' => 'value',
+                                '(?<value>[^'.$this->escape(self::CHARS_SPECIAL).'])' => 'value',
                                 '\\\\(?<value>[ertfna])' => fn (array $match) => [
                                     'value' => ['e' => "\e", 'r' => "\r", 't' => "\t", 'f' => "\f", 'n' => "\n", 'a' => "\x07"][$match['value']],
                                 ],
@@ -272,12 +272,12 @@ class RegularExpressionInformation
                 'unicode' => [
                     'options' => [
                         '\\\\X' => ['type' => 'any'],
-                        '\\\\(?<type>p|P)(?<value>[' . $this->getSingleCodes() . '])' => fn (array $match) => [
+                        '\\\\(?<type>p|P)(?<value>['.$this->getSingleCodes().'])' => fn (array $match) => [
                             'value' => self::SINGLE_UNI_CODES[$match['value']],
                             'not' => $match['type'] === 'P',
                             'type' => 'value',
                         ],
-                        '\\\\(?<type>p|P)\\{(?<not>\\^)?(?<value>' . $this->getUniCodes() . ')\\}' => fn (array $match) => [
+                        '\\\\(?<type>p|P)\\{(?<not>\\^)?(?<value>'.$this->getUniCodes().')\\}' => fn (array $match) => [
                             'value' => self::SINGLE_UNI_CODES[$match['value']] ?? self::UNI_CODES[$match['value']] ?? $match['value'],
                             'not' => isset($match['not']) === ($match['type'] === 'p'),
                             'type' => 'brace',
@@ -302,7 +302,7 @@ class RegularExpressionInformation
                                 'value' => is_numeric($value) ? (int) $value : $value,
                                 'recursive' => true,
                                 'first_in_condition' => true,
-                                'template_or_group_with_name_R' => !isset($match['value']),
+                                'template_or_group_with_name_R' => ! isset($match['value']),
                             ];
                         },
                         '\\\\g(?<value>-?[0-9]+)' => fn (array $match) => [
@@ -317,17 +317,17 @@ class RegularExpressionInformation
                         ],
                         '\\\\(?<type>k|g)\'(?<value>\'[a-z_][a-z0-9_]*)\'' => fn (array $match) => [
                             'value' => $match['value'],
-                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' quote',
+                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']].' quote',
                             'recursive' => false,
                         ],
                         '\\\\(?<type>k|g)\\{(?<value>[a-z_][a-z0-9_]*)\\}' => fn (array $match) => [
                             'value' => $match['value'],
-                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' brace',
+                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']].' brace',
                             'recursive' => false,
                         ],
                         '\\\\(?<type>k|g)\\<(?<value>[a-z_][a-z0-9_]*)\\>' => fn (array $match) => [
                             'value' => $match['value'],
-                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']] . ' tag',
+                            'type' => ['k' => 'key', 'g' => 'group'][$match['type']].' tag',
                             'recursive' => false,
                         ],
                         '\\(\\?(?<value>\d+)\\)' => fn (array $match) => [
@@ -367,8 +367,8 @@ class RegularExpressionInformation
                 'group' => $group,
                 'string' => [
                     'options' => [
-                        '\\\\(?<value>[' . $this->escape(self::ALL_SPECIAL) . '])' => 'value',
-                        '(?<value>[^' . $this->escape(self::GROUP_SPECIAL) . '])' => 'value',
+                        '\\\\(?<value>['.$this->escape(self::ALL_SPECIAL).'])' => 'value',
+                        '(?<value>[^'.$this->escape(self::GROUP_SPECIAL).'])' => 'value',
                         '\\\\(?<value>[ertfna])' => fn (array $match) => [
                             'value' => ['e' => "\e", 'r' => "\r", 't' => "\t", 'f' => "\f", 'n' => "\n", 'a' => "\x07"][$match['value']],
                         ],
@@ -428,7 +428,7 @@ class RegularExpressionInformation
 
     private function escape(string $value): string
     {
-        return $value === '' ? '' : '\\' . implode('\\', str_split($value));
+        return $value === '' ? '' : '\\'.implode('\\', str_split($value));
     }
 
     private function charToHex(string $value): string

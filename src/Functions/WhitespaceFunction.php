@@ -14,6 +14,7 @@ class WhitespaceFunction implements ChildFunctionInterface
     use TraitSetParent;
 
     public const NOT = 1;
+
     public const HORIZONTAL = 2;
 
     public const VERTICAL = 4;
@@ -36,7 +37,7 @@ class WhitespaceFunction implements ChildFunctionInterface
 
     public function __toString(): string
     {
-        return '\\' . self::MAP[
+        return '\\'.self::MAP[
             ($this->horizontal ? self::HORIZONTAL : 0)
             | ($this->vertical ? self::VERTICAL : 0)
             | ($this->not ? self::NOT : 0)

@@ -10,7 +10,7 @@ use EugeneErg\RegularExpression\RegularExpressionException;
 final class ParserOption
 {
     /**
-     * @var callable(array $match): array $callback
+     * @var callable(array): array
      */
     public readonly array|string|object $callback;
 

@@ -30,7 +30,6 @@ final class ParserOptionItem
         return new self(...$options);
     }
 
-    /** @inheritDoc */
     public function getOptions(): array
     {
         return $this->options;

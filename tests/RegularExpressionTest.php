@@ -23,7 +23,7 @@ class RegularExpressionTest extends TestCase
         $actual = RegularExpression::fromPattern('{test{2}/.}A');
 
         $this->assertEquals(
-            new RegularExpression('{', 'test{2}/.', '}',  RegularExpression::MODIFIER_MAPPING['A']),
+            new RegularExpression('{', 'test{2}/.', '}', RegularExpression::MODIFIER_MAPPING['A']),
             $actual,
         );
     }
@@ -37,7 +37,7 @@ class RegularExpressionTest extends TestCase
         $actual = RegularExpression::fromPattern('/test{2}\/./A');
 
         $this->assertEquals(
-            new RegularExpression('/', 'test{2}/.', '/',  RegularExpression::MODIFIER_MAPPING['A']),
+            new RegularExpression('/', 'test{2}/.', '/', RegularExpression::MODIFIER_MAPPING['A']),
             $actual,
         );
     }
@@ -57,7 +57,7 @@ class RegularExpressionTest extends TestCase
     {
         $actual = RegularExpression::fromString('/test{2}\\/./A');
 
-        $this->assertEquals(new RegularExpression('{',  '/test\\{2\\}\\\\/\\./A', '}'), $actual);
+        $this->assertEquals(new RegularExpression('{', '/test\\{2\\}\\\\/\\./A', '}'), $actual);
     }
 
     public function testToStringSuccess(): void
@@ -175,7 +175,7 @@ class RegularExpressionTest extends TestCase
         $actual = RegularExpression::fromPattern('{^.$}')
             ->multiReplace(new Strings('test'), 'Q', 2, true);
 
-        $this->assertEquals(new ResultsCount(0, new Strings), $actual);
+        $this->assertEquals(new ResultsCount(0, new Strings()), $actual);
     }
 
     public function testMultiReplaceCallbackSuccess(): void
@@ -219,49 +219,49 @@ class RegularExpressionTest extends TestCase
 
     public function testSplitSuccess(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->split('test',2);
+        $actual = RegularExpression::fromPattern('{(.)}')->split('test', 2);
 
         $this->assertEquals(['', 'est'], $actual);
     }
 
     public function testSplitSuccessWithoutEmpty(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->split('test',2, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->split('test', 2, true);
 
         $this->assertEquals([], $actual);
     }
 
     public function testSplitSuccessDelimiterCapture(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->split('test',2, false, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->split('test', 2, false, true);
 
         $this->assertEquals(['', 't', 'est'], $actual);
     }
 
     public function testSplitSuccessWithoutEmptyDelimiterCapture(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->split('test',2, true, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->split('test', 2, true, true);
 
         $this->assertEquals(['t', 'e', 's', 't'], $actual);
     }
 
     public function testSplitOffsetCaptureSuccess(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test',2);
+        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test', 2);
 
         $this->assertEquals([new OffsetCapture('', 0), new OffsetCapture('est', 1)], $actual);
     }
 
     public function testSplitOffsetCaptureSuccessWithoutEmpty(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test',2, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test', 2, true);
 
         $this->assertEquals([], $actual);
     }
 
     public function testSplitOffsetCaptureSuccessDelimiterCapture(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test',2, false, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test', 2, false, true);
 
         $this->assertEquals([
             new OffsetCapture('', 0),
@@ -272,7 +272,7 @@ class RegularExpressionTest extends TestCase
 
     public function testSplitOffsetCaptureSuccessWithoutEmptyDelimiterCapture(): void
     {
-        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test',2, true, true);
+        $actual = RegularExpression::fromPattern('{(.)}')->splitOffsetCapture('test', 2, true, true);
 
         $this->assertEquals([
             new OffsetCapture('t', 0),

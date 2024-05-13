@@ -42,6 +42,6 @@ class StringFunction implements ChildFunctionInterface
 
     public static function fromArray(array $data): static
     {
-        return new self($data['value'],);
+        return new self($data['value'], );
     }
 }

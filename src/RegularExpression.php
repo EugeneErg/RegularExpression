@@ -10,16 +10,27 @@ use Stringable;
 class RegularExpression implements Stringable, JsonSerializable
 {
     public const PCRE_CASELESS = 1;
+
     public const PCRE_MULTILINE = 2;
+
     public const PCRE_DOTALL = 4;
+
     public const PCRE_EXTENDED = 8;
+
     public const PCRE_ANCHORED = 16;
+
     public const PCRE_DOLLAR_ENDONLY = 32;
+
     public const PCRE_EXTRA = 64;
+
     public const PCRE_UNGREEDY = 512;
+
     public const PCRE_UTF8 = 2048;
+
     public const PCRE_NO_AUTO_CAPTURE = 4096;
+
     public const PCRE_INFO_JCHANGED = 128;
+
     public const MODIFIER_MAPPING = [
         'i' => self::PCRE_CASELESS,
         'm' => self::PCRE_MULTILINE,
@@ -33,6 +44,7 @@ class RegularExpression implements Stringable, JsonSerializable
         'X' => self::PCRE_NO_AUTO_CAPTURE,
         'J' => self::PCRE_INFO_JCHANGED,
     ];
+
     private const MIRROR_DELIMITERS = ['(' => ')', '[' => ']', '{' => '}', '<' => '>'];
 
     /**
@@ -47,7 +59,8 @@ class RegularExpression implements Stringable, JsonSerializable
         try {
             static::checkPattern((string) $this);
         } catch (\Throwable) {
-            var_dump((string) $this);die;
+            var_dump((string) $this);
+            die;
         }
     }
 
@@ -321,8 +334,8 @@ class RegularExpression implements Stringable, JsonSerializable
     {
         $oldErrorHandler = set_error_handler(
             /**
-            * @throws RegularExpressionException
-            */
+             * @throws RegularExpressionException
+             */
             function (int $level, string $message, string $file, int $line) {
                 if ($level === E_WARNING && str_contains($message, 'preg_match')) {
                     throw new RegularExpressionException($message, null, $file, $line);

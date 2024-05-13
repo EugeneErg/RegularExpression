@@ -48,20 +48,20 @@ class RegularExpressionsTest extends TestCase
     public function testReplaceCallbackSuccess(): void
     {
         $actual = (new RegularExpressions(
-                RegularExpression::fromPattern('{.}'),
-                RegularExpression::fromPattern('{(.).}'),
-            ))->replaceCallback(
-                'test',
-                function (array $match): string {
-                    static $step = 0;
+            RegularExpression::fromPattern('{.}'),
+            RegularExpression::fromPattern('{(.).}'),
+        ))->replaceCallback(
+            'test',
+            function (array $match): string {
+                static $step = 0;
 
-                    $this->assertEquals([['t'], ['e'], ['QQ', 'Q'], ['st', 's']][$step], $match);
-                    $step++;
+                $this->assertEquals([['t'], ['e'], ['QQ', 'Q'], ['st', 's']][$step], $match);
+                $step++;
 
-                    return 'Q';
-                },
-                2,
-            );
+                return 'Q';
+            },
+            2,
+        );
 
         $this->assertEquals(new ResultCount(4, 'QQ'), $actual);
     }
@@ -208,17 +208,17 @@ class RegularExpressionsTest extends TestCase
             RegularExpression::fromPattern('{.}'),
             RegularExpression::fromPattern('{(.).}'),
         ))->multiReplaceCallback(
-                new Strings('test'),
-                function (array $match): string {
-                    static $step = 0;
+            new Strings('test'),
+            function (array $match): string {
+                static $step = 0;
 
-                    $this->assertEquals([['t'], ['e'], ['QQ', 'Q'], ['st', 's']][$step], $match);
-                    $step++;
+                $this->assertEquals([['t'], ['e'], ['QQ', 'Q'], ['st', 's']][$step], $match);
+                $step++;
 
-                    return 'Q';
-                },
-                2,
-            );
+                return 'Q';
+            },
+            2,
+        );
 
         $this->assertEquals(new ResultsCount(4, new Strings('QQ')), $actual);
     }
