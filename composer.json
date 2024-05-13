@@ -4,7 +4,7 @@
     "description": "Regular Expression",
     "license": "MIT",
     "require": {
-        "php": "^8.1"
+        "php": "^8.3"
     },
     "autoload": {
         "psr-4": {
@@ -12,6 +12,8 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.53",
+        "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^10.5"
     },
     "autoload-dev": {
