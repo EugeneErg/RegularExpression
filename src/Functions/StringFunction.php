@@ -7,11 +7,11 @@ namespace EugeneErg\RegularExpression\Functions;
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class StringFunction implements ChildFunctionInterface
+readonly class StringFunction implements ChildFunctionInterface
 {
     use TraitSetParent;
 
-    public function __construct(public readonly string $value)
+    final public function __construct(public string $value)
     {
     }
 
@@ -40,8 +40,9 @@ class StringFunction implements ChildFunctionInterface
         return $this->__toString();
     }
 
+    /** @param array{value: string} $data */
     public static function fromArray(array $data): static
     {
-        return new self($data['value'], );
+        return new static($data['value']);
     }
 }

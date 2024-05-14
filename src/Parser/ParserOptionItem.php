@@ -7,10 +7,10 @@ namespace EugeneErg\RegularExpression\Parser;
 use EugeneErg\RegularExpression\RegularExpression;
 use EugeneErg\RegularExpression\RegularExpressionException;
 
-final class ParserOptionItem
+final readonly class ParserOptionItem
 {
     /** @var ParserOption[] */
-    private readonly array $options;
+    private array $options;
 
     public function __construct(ParserOption ...$options)
     {
@@ -30,6 +30,7 @@ final class ParserOptionItem
         return new self(...$options);
     }
 
+    /** @return ParserOption[] */
     public function getOptions(): array
     {
         return $this->options;

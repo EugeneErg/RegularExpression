@@ -7,7 +7,7 @@ namespace EugeneErg\RegularExpression;
 use JsonSerializable;
 use Stringable;
 
-class RegularExpression implements Stringable, JsonSerializable
+readonly class RegularExpression implements Stringable, JsonSerializable
 {
     public const PCRE_CASELESS = 1;
 
@@ -51,13 +51,13 @@ class RegularExpression implements Stringable, JsonSerializable
      * @throws RegularExpressionException
      */
     public function __construct(
-        public readonly string $openDelimiter,
-        public readonly string $pattern,
-        public readonly string $closeDelimiter,
-        public readonly int $modifiers = 0,
+        public string $openDelimiter,
+        public string $pattern,
+        public string $closeDelimiter,
+        public int $modifiers = 0,
     ) {
         try {
-            static::checkPattern((string) $this);
+            self::checkPattern((string) $this);
         } catch (\Throwable) {
             var_dump((string) $this);
             die;
@@ -69,17 +69,18 @@ class RegularExpression implements Stringable, JsonSerializable
      */
     public static function fromPattern(string $pattern): static
     {
-        static::checkPattern($pattern);
+        self::checkPattern($pattern);
         $openDelimiter = $pattern[0];
-        $closeDelimiter = static::MIRROR_DELIMITERS[$openDelimiter] ?? $openDelimiter;
+        $closeDelimiter = self::MIRROR_DELIMITERS[$openDelimiter] ?? $openDelimiter;
         $modifiers = preg_quote(implode('', array_keys(self::MODIFIER_MAPPING)));
         $quoteOpenDelimiter = preg_quote($openDelimiter);
         $quoteCloseDelimiter = preg_quote($closeDelimiter);
         $mirrorPattern = "{^{$quoteOpenDelimiter}(?<result_pattern>.*){$quoteCloseDelimiter}(?<result_modifiers>[{$modifiers}]*)$}";
         preg_match($mirrorPattern, $pattern, $matches);
-        $resultPattern = static::unDelimiterPattern($matches['result_pattern'], $openDelimiter, $closeDelimiter);
+        $resultPattern = self::unDelimiterPattern($matches['result_pattern'], $openDelimiter, $closeDelimiter);
         $resultModifiers = $matches['result_modifiers'];
 
+        /** @@phpstan-ignore-next-line */
         return new static($openDelimiter, $resultPattern, $closeDelimiter, static::modifiersFromString($resultModifiers));
     }
 
@@ -88,6 +89,7 @@ class RegularExpression implements Stringable, JsonSerializable
      */
     public static function fromString(string $value): static
     {
+        /** @@phpstan-ignore-next-line */
         return new static('{', preg_quote($value), '}');
     }
 
@@ -124,6 +126,7 @@ class RegularExpression implements Stringable, JsonSerializable
             $offset,
         );
 
+        /** @var array<string|null>[] $match */
         return $this->prepareMatchOffsetCapture($match);
     }
 
@@ -162,6 +165,7 @@ class RegularExpression implements Stringable, JsonSerializable
         );
         $result = [];
 
+        /** @var array<string|null>[][] $matches */
         foreach ($matches as $key => $match) {
             $result[$key] = $this->prepareMatchOffsetCapture($match);
         }
@@ -188,6 +192,7 @@ class RegularExpression implements Stringable, JsonSerializable
         ?int $limit = null,
         bool $offsetCapture = false,
     ): ResultCount {
+        /** @var string $result */
         $result = preg_replace_callback(
             (string) $this,
             $offsetCapture
@@ -208,6 +213,7 @@ class RegularExpression implements Stringable, JsonSerializable
         ?int $limit = null,
         bool $filter = false,
     ): ResultsCount {
+        /** @var string[] $result */
         $result = $filter
             ? preg_filter((string) $this, $replacement, $subject->items, $limit ?? -1, $count)
             : preg_replace((string) $this, $replacement, $subject->items, $limit ?? -1, $count);
@@ -221,6 +227,7 @@ class RegularExpression implements Stringable, JsonSerializable
         ?int $limit = null,
         bool $offsetCapture = false,
     ): ResultsCount {
+        /** @var string[] $result */
         $result = preg_replace_callback(
             (string) $this,
             $offsetCapture
@@ -235,25 +242,36 @@ class RegularExpression implements Stringable, JsonSerializable
         return new ResultsCount($count, new Strings(...$result));
     }
 
+    /** @return string[] */
     public function grep(Strings $strings, bool $invert = false): array
     {
-        return preg_grep((string) $this, $strings->items, $invert ? PREG_GREP_INVERT : 0);
+        $result = preg_grep((string) $this, $strings->items, $invert ? PREG_GREP_INVERT : 0);
+
+        /** @var string[] $result */
+        return $result;
     }
 
+    /**
+     * @return string[]
+     */
     public function split(
         string $subject,
         ?int $limit = null,
         bool $withoutEmpty = false,
         bool $delimiterCapture = false,
     ): array {
-        return preg_split(
+        $result = preg_split(
             (string) $this,
             $subject,
             $limit ?? -1,
             ($withoutEmpty ? PREG_SPLIT_NO_EMPTY : 0) | ($delimiterCapture ? PREG_SPLIT_DELIM_CAPTURE : 0),
         );
+
+        /** @var string[] $result */
+        return $result;
     }
 
+    /** @return OffsetCapture[] */
     public function splitOffsetCapture(
         string $subject,
         ?int $limit = null,
@@ -269,6 +287,7 @@ class RegularExpression implements Stringable, JsonSerializable
                 | ($delimiterCapture ? PREG_SPLIT_DELIM_CAPTURE : 0),
         );
 
+        /** @var string[][] $result */
         return $this->prepareMatchOffsetCapture($result);
     }
 
@@ -311,19 +330,29 @@ class RegularExpression implements Stringable, JsonSerializable
             : $this->pattern;
     }
 
+    /**
+     * @param array<string|null> $match
+     * @return string[]
+     */
     private function prepareMatch(array $match): array
     {
         return array_filter($match, fn (?string $value): bool => $value !== null);
     }
 
+    /**
+     * @param array<string|null>[] $match
+     * @return OffsetCapture[]
+     */
     private function prepareMatchOffsetCapture(array $match): array
     {
         $match = array_filter($match, fn (array $value): bool => $value[0] !== null);
 
+        /** @var string[][] $match */
         array_walk($match, function (array &$value): void {
             $value = new OffsetCapture(...$value);
         });
 
+        /** @var OffsetCapture[] */
         return $match;
     }
 

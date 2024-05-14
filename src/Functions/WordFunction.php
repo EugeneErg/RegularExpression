@@ -8,7 +8,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class WordFunction implements ChildFunctionInterface
+readonly class WordFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
@@ -17,7 +17,7 @@ class WordFunction implements ChildFunctionInterface
 
     public const MAP = [self::NOT => 'W', 0 => 'w'];
 
-    public function __construct(public readonly bool $not)
+    final public function __construct(public bool $not)
     {
     }
 
@@ -26,9 +26,10 @@ class WordFunction implements ChildFunctionInterface
         return '\\'.self::MAP[$this->not ? self::NOT : 0];
     }
 
+    /** @param array{not?: bool} $data */
     public static function fromArray(array $data): static
     {
-        return new self($data['not'] ?? false);
+        return new static($data['not'] ?? false);
     }
 
     public function getMinLength(): int

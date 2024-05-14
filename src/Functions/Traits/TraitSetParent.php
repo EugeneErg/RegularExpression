@@ -8,9 +8,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\RootFunctionInterface;
 
-/**
- * @mixin ChildFunctionInterface
- */
+/** @mixin ChildFunctionInterface */
 trait TraitSetParent
 {
     public readonly ParentFunctionInterface $parent;
@@ -29,7 +27,9 @@ trait TraitSetParent
 
     public function setParent(ParentFunctionInterface $parent): void
     {
+        /** @phpstan-ignore-next-line */
         $this->parent = $parent;
+        /** @phpstan-ignore-next-line */
         $this->root = $parent->getRoot();
     }
 }

@@ -7,19 +7,19 @@ namespace EugeneErg\RegularExpression\Functions;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
 
-abstract class AbstractStructure implements ParentFunctionInterface
+abstract readonly class AbstractStructure implements ParentFunctionInterface
 {
     use TraitSetChildren;
 
     public function __construct(
-        public readonly int $number,
-        public readonly ?string $name = null,
-        public readonly int $addModifiers = 0,
-        public readonly int $subModifiers = 0,
-        public readonly bool $not = false,
-        public readonly ?bool $direction = null,
-        public readonly GroupFunction\Type $type = GroupFunction\Type::Group,
-        public readonly bool $once = false,
+        public int $number,
+        public ?string $name = null,
+        public int $addModifiers = 0,
+        public int $subModifiers = 0,
+        public bool $not = false,
+        public ?bool $direction = null,
+        public GroupFunction\Type $type = GroupFunction\Type::Group,
+        public bool $once = false,
     ) {
     }
 

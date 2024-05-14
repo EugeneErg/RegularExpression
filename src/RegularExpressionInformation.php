@@ -17,7 +17,7 @@ use LogicException;
 
 class RegularExpressionInformation
 {
-    private const ESCAPES = [
+    /*private const ESCAPES = [
         'd' => 'decimal',
         'D' => 'not a decimal',
         'h' => 'horizontal whitespace',
@@ -42,7 +42,7 @@ class RegularExpressionInformation
         'e' => 'escape',
         'f' => 'form feed',
         'X' => 'unicode',
-    ];
+    ];*/
 
     private const CLASS_UNI_CODES = [
         'Arabic', 'Armenian', 'Avestan', 'Balinese', 'Bamum', 'Batak', 'Bengali', 'Bopomofo', 'Brahmi', 'Braille',
@@ -406,7 +406,7 @@ class RegularExpressionInformation
     /**
      * @throws RegularExpressionException
      */
-    public static function fromPattern(string $pattern): static
+    public static function fromPattern(string $pattern): self
     {
         return new self(RegularExpression::fromPattern($pattern));
     }
@@ -416,6 +416,7 @@ class RegularExpressionInformation
      */
     private function prepare(ParserResult $value, ParentFunctionInterface $parent, array &$groups): FunctionInterface
     {
+        /** @phpstan-ignore-next-line */
         return match ($value->name) {
             'chars' => $this->prepareChars($value, $parent),
         };
@@ -423,7 +424,7 @@ class RegularExpressionInformation
 
     private function prepareChars(ParserResult $value, ParentFunctionInterface $parent): CharFunction
     {
-        return CharFunction::fromArray($value->options, $parent);
+        return CharFunction::fromArray($value->options);
     }
 
     private function escape(string $value): string

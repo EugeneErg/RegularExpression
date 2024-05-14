@@ -8,7 +8,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class WhitespaceFunction implements ChildFunctionInterface
+readonly class WhitespaceFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
@@ -28,10 +28,10 @@ class WhitespaceFunction implements ChildFunctionInterface
         self::NOT | self::HORIZONTAL | self::VERTICAL => 'S',
     ];
 
-    public function __construct(
-        public readonly bool $horizontal,
-        public readonly bool $vertical,
-        public readonly bool $not,
+    final public function __construct(
+        public bool $horizontal,
+        public bool $vertical,
+        public bool $not,
     ) {
     }
 
@@ -44,9 +44,13 @@ class WhitespaceFunction implements ChildFunctionInterface
             ];
     }
 
+    /**
+     * @param array{horizontal: bool, vertical: bool, not: bool} $data
+     * @return static
+     */
     public static function fromArray(array $data): static
     {
-        return new self($data['horizontal'], $data['vertical'], $data['not']);
+        return new static($data['horizontal'], $data['vertical'], $data['not']);
     }
 
     public function getMinLength(): int

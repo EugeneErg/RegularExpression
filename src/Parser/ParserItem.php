@@ -12,6 +12,7 @@ final class ParserItem
     /** @var ParserOption[] */
     private readonly array $options;
 
+    /** @var self[] */
     private array $children = [];
 
     public function __construct(
@@ -22,16 +23,30 @@ final class ParserItem
         $this->options = $options;
     }
 
+    /**
+     * @param array{
+     *     begin?: null|string|RegularExpression,
+     *     end?: null|string|RegularExpression,
+     *     options?: string|array<string|int, callable|string|array<int, string>|array<string, mixed>>,
+     *     children?: array<string, mixed[]|ParserItem>
+     * } $data
+     */
     public static function fromArray(array $data): self
     {
         $result = new self(
-            self::regularExpressionFromArray($data['begin'] ?? null),
-            self::regularExpressionFromArray($data['end'] ?? null),
+            self::regularExpressionFromNullableArray($data['begin'] ?? null),
+            self::regularExpressionFromNullableArray($data['end'] ?? null),
             ...self::optionsFromArray((array) ($data['options'] ?? [])),
         );
 
         if (isset($data['children'])) {
             foreach ($data['children'] as $name => $child) {
+                /** @var array{
+                 *     begin?: null|string|RegularExpression,
+                 *     end?: null|string|RegularExpression,
+                 *     options?: string|array<string|int, callable|string|array<int, string>|array<string, mixed>>,
+                 *     children?: array<string, mixed[]>
+                 * } $child */
                 $result->addChildren(...[$name => self::fromArray($child)]);
             }
         }
@@ -58,7 +73,15 @@ final class ParserItem
         return $this;
     }
 
-    private static function regularExpressionFromArray(null|string|RegularExpression $value): ?RegularExpression
+    private static function regularExpressionFromArray(string|RegularExpression $value): RegularExpression
+    {
+        /** @var RegularExpression $result */
+        $result = self::regularExpressionFromNullableArray($value);
+
+        return $result;
+    }
+
+    private static function regularExpressionFromNullableArray(null|string|RegularExpression $value): ?RegularExpression
     {
         return is_string($value)
             ? new RegularExpression('{', $value, '}', RegularExpression::PCRE_INFO_JCHANGED)
@@ -66,7 +89,7 @@ final class ParserItem
     }
 
     /**
-     * @param array<string, callable|mixed[]> $options
+     * @param array<string|int, callable|string|array<int, string>|array<string, mixed>> $options
      * @return ParserOption[]
      */
     private static function optionsFromArray(array $options): array
@@ -80,7 +103,7 @@ final class ParserItem
             }
 
             $result[] = new ParserOption(
-                self::regularExpressionFromArray($pattern),
+                self::regularExpressionFromArray((string) $pattern),
                 is_callable($option) ? $option : function (array $match) use ($option): array {
                     $result = [];
 

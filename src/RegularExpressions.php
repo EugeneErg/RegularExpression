@@ -7,10 +7,10 @@ namespace EugeneErg\RegularExpression;
 use ArgumentCountError;
 use Closure;
 
-class RegularExpressions
+readonly class RegularExpressions
 {
     /** @var RegularExpression[] */
-    public readonly array $items;
+    public array $items;
 
     public function __construct(RegularExpression ...$regularExpressions)
     {
@@ -23,6 +23,7 @@ class RegularExpressions
         ?int $limit = null,
         bool $filter = false,
     ): ResultCount {
+        /** @var string $result */
         [$result, $count] = $this->replaceSome($subject, $replacement, $limit, $filter);
 
         return new ResultCount($count, $result);
@@ -34,6 +35,7 @@ class RegularExpressions
         ?int $limit = null,
         bool $offsetCapture = false,
     ): ResultCount {
+        /** @var string $result */
         [$result, $count] = $this->replaceSomeCallback($subject, $replacement, $limit, $offsetCapture);
 
         return new ResultCount($count, $result);
@@ -45,6 +47,7 @@ class RegularExpressions
         ?int $limit = null,
         bool $filter = false,
     ): ResultsCount {
+        /** @var string[] $result */
         [$result, $count] = $this->replaceSome($subject, $replacement, $limit, $filter);
 
         return new ResultsCount($count, new Strings(...$result));
@@ -56,11 +59,13 @@ class RegularExpressions
         ?int $limit = null,
         bool $offsetCapture = false,
     ): ResultsCount {
+        /** @var string[] $result */
         [$result, $count] = $this->replaceSomeCallback($subject, $replacement, $limit, $offsetCapture);
 
         return new ResultsCount($count, new Strings(...$result));
     }
 
+    /** @return array{0: string|string[], 1: int} */
     private function replaceSome(
         string|Strings $subject,
         string|Strings $replacement,
@@ -83,9 +88,14 @@ class RegularExpressions
                 $count,
             );
 
+        /** @var string|string[] $result */
         return [$result, $count];
     }
 
+    /**
+     * @param callable|Callables $replacement
+     * @return array{0: string|string[], 1: int}
+     */
     private function replaceSomeCallback(
         string|Strings $subject,
         callable|Callables $replacement,
@@ -127,22 +137,33 @@ class RegularExpressions
             );
         }
 
+        /** @var string|string[] $result */
         return [$result, $count];
     }
 
+    /**
+     * @param array<string|null> $match
+     * @return string[]
+     */
     private function prepareMatch(array $match): array
     {
         return array_filter($match, fn (?string $value): bool => $value !== null);
     }
 
+    /**
+     * @param array<string|null>[] $match
+     * @return OffsetCapture[]
+     */
     private function prepareMatchOffsetCapture(array $match): array
     {
         $match = array_filter($match, fn (array $value): bool => $value[0] !== null);
 
+        /** @var string[][] $match */
         array_walk($match, function (array &$value): void {
             $value = new OffsetCapture(...$value);
         });
 
+        /** @var OffsetCapture[] $match */
         return $match;
     }
 }

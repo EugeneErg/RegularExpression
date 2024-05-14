@@ -8,12 +8,12 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class UnicodeFunction implements ChildFunctionInterface
+readonly class UnicodeFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
 
-    private const CLASS_UNI_CODES = [
+    /*private const CLASS_UNI_CODES = [
         'Arabic', 'Armenian', 'Avestan', 'Balinese', 'Bamum', 'Batak', 'Bengali', 'Bopomofo', 'Brahmi', 'Braille',
         'Buginese', 'Buhid', 'Canadian_Aboriginal', 'Carian', 'Chakma', 'Cham', 'Cherokee', 'Common', 'Coptic',
         'Cuneiform', 'Cypriot', 'Cyrillic', 'Deseret', 'Devanagari', 'Egyptian_Hieroglyphs', 'Ethiopic', 'Georgian',
@@ -38,7 +38,7 @@ class UnicodeFunction implements ChildFunctionInterface
         'Z' => 'Separator',
     ];
 
-    private const UNI_CODES = [
+    /*private const UNI_CODES = [
         'Cc' => 'Control',
         'Cf' => 'Format',
         'Cn' => 'Unassigned',
@@ -69,11 +69,11 @@ class UnicodeFunction implements ChildFunctionInterface
         'Zl' => 'Line separator',
         'Zp' => 'Paragraph separator',
         'Zs' => 'Space separator',
-    ];
+    ];*/
 
-    public function __construct(
-        public readonly bool $not,
-        public readonly string $value,
+    final public function __construct(
+        public string $value,
+        public bool $not,
     ) {
     }
 
@@ -86,9 +86,10 @@ class UnicodeFunction implements ChildFunctionInterface
         };
     }
 
+    /** @param array{value?: string, not?: bool} $data */
     public static function fromArray(array $data): static
     {
-        return new self($data['value'] ?? '', $data['not'] ?? false);
+        return new static($data['value'] ?? '', $data['not'] ?? false);
     }
 
     public function getMinLength(): int

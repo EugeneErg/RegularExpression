@@ -24,6 +24,7 @@ class ParserProcess
 
     /**
      * @throws RegularExpressionException
+     * @param array<string, mixed> $parentOptions
      */
     private function parse(ParserItem $item, string $name, int $position = 0, array $parentOptions = []): ?ParserResult
     {
@@ -86,6 +87,8 @@ class ParserProcess
 
     /**
      * @throws RegularExpressionException
+     * @param array<string, mixed> $parentOptions
+     * @return null|array<string, mixed>
      */
     private function parseOption(ParserItem $item, int $position, string $name, array $parentOptions): ?array
     {

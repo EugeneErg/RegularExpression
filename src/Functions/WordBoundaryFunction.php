@@ -8,12 +8,12 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class WordBoundaryFunction implements ChildFunctionInterface
+readonly class WordBoundaryFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
 
-    public function __construct(public readonly bool $not)
+    final public function __construct(public bool $not)
     {
     }
 
@@ -22,9 +22,10 @@ class WordBoundaryFunction implements ChildFunctionInterface
         return $this->not ? '\\B' : '\\b';
     }
 
+    /** @param array{not?: bool} $data */
     public static function fromArray(array $data): static
     {
-        return new self($data['not']);
+        return new static($data['not'] ?? false);
     }
 
     public function getMinLength(): int

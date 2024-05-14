@@ -5,56 +5,20 @@ declare(strict_types=1);
 namespace EugeneErg\RegularExpression\Parser;
 
 use EugeneErg\RegularExpression\RegularExpression;
-use EugeneErg\RegularExpression\RegularExpressionException;
 
 final class ParserOption
 {
     /**
-     * @var callable(array): array
+     * @var callable(string[], int, string, array<string, mixed>): array<string, mixed>
      */
-    public readonly array|string|object $callback;
+    public readonly mixed $callback;
 
     /**
      * @param RegularExpression $regularExpression
-     * @param callable(array $match): array $callback
+     * @param callable(string[] $match, int $position, string $name, array<string, mixed> $parentOptions): array<string, mixed> $callback
      */
     public function __construct(public RegularExpression $regularExpression, callable $callback)
     {
         $this->callback = $callback;
-    }
-
-    /**
-     * @throws RegularExpressionException
-     */
-    public static function new(string|RegularExpression $pattern, array|callable $callback): self
-    {
-        return new self(
-            $pattern instanceof RegularExpression ? $pattern : new RegularExpression('{', $pattern, '}', RegularExpression::PCRE_INFO_JCHANGED),
-            is_callable($callback) ? $callback : fn () => $callback,
-        );
-    }
-
-    private static function getFields(string ...$fields): callable
-    {
-        return function (array $match) use ($fields): array {
-            $result = [];
-
-            foreach ($fields as $field) {
-                $result[$field] = $match[$field] ?? null;
-            }
-
-            return $result;
-        };
-    }
-
-    /**
-     * @throws RegularExpressionException
-     */
-    public static function match(string|RegularExpression $pattern, string ...$fields): self
-    {
-        return new self(
-            $pattern instanceof RegularExpression ? $pattern : new RegularExpression('{', $pattern, '}', RegularExpression::PCRE_INFO_JCHANGED),
-            self::getFields(...$fields),
-        );
     }
 }
