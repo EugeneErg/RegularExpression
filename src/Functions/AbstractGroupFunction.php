@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace EugeneErg\RegularExpression\Functions;
 
-use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
-use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
-
-readonly class GroupFunction extends AbstractGroupFunction implements ChildFunctionInterface
+abstract readonly class AbstractGroupFunction extends AbstractStructureFunction
 {
-    use TraitSetParent;
-
     public static function fromArray(array $data): static
     {
         // TODO: Implement fromArray() method.

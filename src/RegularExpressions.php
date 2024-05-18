@@ -53,6 +53,9 @@ readonly class RegularExpressions
         return new ResultsCount($count, new Strings(...$result));
     }
 
+    /**
+     * @param callable(array $match): string|Callables<callable(array $match): string> $replacement
+     */
     public function multiReplaceCallback(
         Strings $subject,
         callable|Callables $replacement,
@@ -93,7 +96,7 @@ readonly class RegularExpressions
     }
 
     /**
-     * @param callable|Callables $replacement
+     * @param callable(array<string|OffsetCapture> $match): string|Callables<callable(array<string|OffsetCapture> $match): string> $replacement
      * @return array{0: string|string[], 1: int}
      */
     private function replaceSomeCallback(
@@ -110,6 +113,7 @@ readonly class RegularExpressions
             $patterns = array_combine(
                 array_map(fn (RegularExpression $value): string => (string) $value, $this->items),
                 array_map(
+                    /** @param callable(array<string|OffsetCapture> $match): string $value */
                     fn (callable $value): Closure => $offsetCapture
                         ? fn (array $match): string => $value($this->prepareMatchOffsetCapture($match))
                         : fn (array $match): string => $value($this->prepareMatch($match)),

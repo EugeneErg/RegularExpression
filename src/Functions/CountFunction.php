@@ -9,15 +9,15 @@ use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class CountFunction implements ParentFunctionInterface, ChildFunctionInterface
+readonly class CountFunction implements ParentFunctionInterface, ChildFunctionInterface
 {
     use TraitSetParent;
     use TraitSetChildren;
 
     public function __construct(
-        public readonly int $from,
-        public readonly ?int $to,
-        public readonly bool $lazy,
+        public int $from,
+        public ?int $to,
+        public bool $lazy,
     ) {
     }
 

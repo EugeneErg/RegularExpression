@@ -8,14 +8,14 @@ use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class ClassFunction implements FunctionInterface
+readonly class ClassFunction implements FunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
 
     public function __construct(
-        public readonly bool $not,
-        public readonly string $value,
+        public bool $not,
+        public string $value,
     ) {
     }
 

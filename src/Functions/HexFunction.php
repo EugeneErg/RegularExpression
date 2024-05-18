@@ -8,11 +8,11 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class HexFunction implements ChildFunctionInterface
+readonly class HexFunction implements ChildFunctionInterface
 {
     use TraitSetParent;
 
-    public function __construct(public readonly string $value)
+    public function __construct(public string $value)
     {
     }
 

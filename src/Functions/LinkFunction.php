@@ -7,15 +7,15 @@ namespace EugeneErg\RegularExpression\Functions;
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class LinkFunction implements ChildFunctionInterface
+readonly class LinkFunction implements ChildFunctionInterface
 {
     use TraitSetParent;
 
     public function __construct(
-        public readonly GroupFunction $target,
-        public readonly string|int $link,
-        public readonly bool $isRecursive,
-        public readonly bool $isFirstInCondition,
+        public GroupFunction $target,
+        public string|int $link,
+        public bool $isRecursive,
+        public bool $isFirstInCondition,
     ) {
     }
 

@@ -9,12 +9,12 @@ use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class CharFunction implements ParentFunctionInterface, ChildFunctionInterface
+readonly class CharFunction implements ParentFunctionInterface, ChildFunctionInterface
 {
     use TraitSetParent;
     use TraitSetChildren;
 
-    public function __construct(public readonly bool $not)
+    public function __construct(public bool $not)
     {
     }
 

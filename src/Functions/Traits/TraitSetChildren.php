@@ -15,6 +15,7 @@ trait TraitSetChildren
     /** @var ChildFunctionInterface[] */
     private array $children;
 
+    /** @return ChildFunctionInterface[] */
     public function getChildren(): array
     {
         return $this->children;

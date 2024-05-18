@@ -7,7 +7,7 @@ namespace EugeneErg\RegularExpression\Functions;
 use EugeneErg\RegularExpression\Functions\Contracts\ParentFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetChildren;
 
-abstract readonly class AbstractStructure implements ParentFunctionInterface
+abstract readonly class AbstractStructureFunction implements ParentFunctionInterface
 {
     use TraitSetChildren;
 
@@ -18,15 +18,12 @@ abstract readonly class AbstractStructure implements ParentFunctionInterface
         public int $subModifiers = 0,
         public bool $not = false,
         public ?bool $direction = null,
-        public GroupFunction\Type $type = GroupFunction\Type::Group,
         public bool $once = false,
     ) {
     }
 
     public function __toString(): string
     {
-        if ($this->type !== GroupFunction\Type::Enum) {
-        }
     }
 
     public function getMinLength(): int
@@ -46,11 +43,9 @@ abstract readonly class AbstractStructure implements ParentFunctionInterface
 
     public function jsonSerialize(): string
     {
-        // TODO: Implement jsonSerialize() method.
+
     }
 
-    public static function fromArray(array $data): static
-    {
-        // TODO: Implement fromArray() method.
-    }
+    /** @param array{} $data todo */
+    abstract public static function fromArray(array $data): static;
 }

@@ -8,7 +8,7 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class DecimalFunction implements ChildFunctionInterface
+readonly class DecimalFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
@@ -18,7 +18,7 @@ class DecimalFunction implements ChildFunctionInterface
     public const MAP = [self::NOT => 'D', 0 => 'd'];
 
     public function __construct(
-        public readonly bool $not,
+        public bool $not,
     ) {
     }
 

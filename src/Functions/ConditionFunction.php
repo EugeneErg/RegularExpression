@@ -5,37 +5,29 @@ declare(strict_types=1);
 namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
-use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-readonly class AnyFunction implements ChildFunctionInterface
+readonly class ConditionFunction extends AbstractStructureFunction implements ChildFunctionInterface
 {
-    use TraitGenerate;
     use TraitSetParent;
 
-    final public function __toString(): string
-    {
-        return '.';
-    }
-
-    /** @param array{} $data */
     public static function fromArray(array $data): static
     {
-        return new static();
+        // TODO: Implement fromArray() method.
     }
 
     public function getMinLength(): int
     {
-        return 1;
+        // TODO: Implement getMinLength() method.
     }
 
     public function getMaxLength(): ?int
     {
-        return 1;
+        // TODO: Implement getMaxLength() method.
     }
 
-    public function jsonSerialize(): string
+    public function generate(string $from, bool $not): string
     {
-        return $this->__toString();
+        // TODO: Implement generate() method.
     }
 }

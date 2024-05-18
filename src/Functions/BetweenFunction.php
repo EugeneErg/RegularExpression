@@ -8,14 +8,14 @@ use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitGenerate;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-class BetweenFunction implements ChildFunctionInterface
+readonly class BetweenFunction implements ChildFunctionInterface
 {
     use TraitGenerate;
     use TraitSetParent;
 
     public function __construct(
-        public readonly string $from,
-        public readonly string $to,
+        public string $from,
+        public string $to,
     ) {
     }
 

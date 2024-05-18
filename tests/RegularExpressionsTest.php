@@ -289,6 +289,7 @@ class RegularExpressionsTest extends TestCase
         ))->multiReplaceCallback(
             new Strings('test'),
             new Callables(
+                //fn (): int => 12,
                 function (array $match): string {
                     static $step = 0;
 

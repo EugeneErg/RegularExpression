@@ -11,6 +11,7 @@ interface FunctionInterface extends Stringable, JsonSerializable
 {
     public static function fromArray(array $data): static;
 
+    /** @return int<0,max> */
     public function getMinLength(): int;
 
     public function getMaxLength(): ?int;

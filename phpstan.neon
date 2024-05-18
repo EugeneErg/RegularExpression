@@ -2,6 +2,6 @@ parameters:
     level: max
     paths:
         - src
+        - tests
     ignoreErrors:
-        - '{^Class [a-zA-Z0-9\\_]+Function has an uninitialized readonly property \$parent. Assign it in the constructor.$}'
-        - '{^Class [a-zA-Z0-9\\_]+Function has an uninitialized readonly property \$root. Assign it in the constructor.$}'
+        - '{^Class [a-zA-Z0-9\\_]+Function has an uninitialized readonly property \$(parent|root|children). Assign it in the constructor.$}'

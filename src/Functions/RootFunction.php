@@ -6,7 +6,7 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\RootFunctionInterface;
 
-readonly class RootFunction extends AbstractStructure implements RootFunctionInterface
+readonly class RootFunction extends AbstractGroupFunction implements RootFunctionInterface
 {
     final public function __construct(int $addModifiers = 0)
     {

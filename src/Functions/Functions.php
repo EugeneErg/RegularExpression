@@ -6,10 +6,10 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\FunctionInterface;
 
-class Functions
+readonly class Functions
 {
     /** @var array<FunctionInterface|string> */
-    public readonly array $items;
+    public array $items;
 
     public function __construct(FunctionInterface|string ...$functions)
     {
