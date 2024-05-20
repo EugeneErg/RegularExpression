@@ -73,7 +73,7 @@ readonly class UnicodeFunction implements ChildFunctionInterface
 
     final public function __construct(
         public string $value,
-        public bool $not,
+        public bool $negative,
     ) {
     }
 
@@ -81,8 +81,8 @@ readonly class UnicodeFunction implements ChildFunctionInterface
     {
         return match (strlen($this->value)) {
             0 => '\\X',
-            1 => '\\'.($this->not ? 'P' : 'p').$this->value,
-            default => '\\'.($this->not ? 'P' : 'p').'{'.$this->value.'}',
+            1 => '\\'.($this->negative ? 'P' : 'p').$this->value,
+            default => '\\'.($this->negative ? 'P' : 'p').'{'.$this->value.'}',
         };
     }
 

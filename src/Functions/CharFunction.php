@@ -14,14 +14,14 @@ readonly class CharFunction implements ParentFunctionInterface, ChildFunctionInt
     use TraitSetParent;
     use TraitSetChildren;
 
-    public function __construct(public bool $not)
+    public function __construct(public bool $negative)
     {
     }
 
     public function __toString(): string
     {
         return '['
-            .($this->not ? '^' : '')
+            .($this->negative ? '^' : '')
             .implode('|', array_map(fn (ChildFunctionInterface $child) => (string) $child, $this->children))
             .']';
     }
@@ -41,11 +41,11 @@ readonly class CharFunction implements ParentFunctionInterface, ChildFunctionInt
         return $this->__toString();
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         $key = array_rand($this->children);
 
-        return $this->children[$key]->generate($from, $not === $this->not);
+        return $this->children[$key]->generate($from, $negative === $this->negative);
     }
 
     public static function fromArray(array $data): static

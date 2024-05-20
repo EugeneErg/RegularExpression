@@ -31,7 +31,7 @@ readonly class WhitespaceFunction implements ChildFunctionInterface
     final public function __construct(
         public bool $horizontal,
         public bool $vertical,
-        public bool $not,
+        public bool $negative,
     ) {
     }
 
@@ -40,7 +40,7 @@ readonly class WhitespaceFunction implements ChildFunctionInterface
         return '\\'.self::MAP[
             ($this->horizontal ? self::HORIZONTAL : 0)
             | ($this->vertical ? self::VERTICAL : 0)
-            | ($this->not ? self::NOT : 0)
+            | ($this->negative ? self::NOT : 0)
             ];
     }
 

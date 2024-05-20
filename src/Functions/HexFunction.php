@@ -41,7 +41,7 @@ readonly class HexFunction implements ChildFunctionInterface
         return $this->__toString();
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         //todo not
         return json_decode('"'.$this->value.'"');

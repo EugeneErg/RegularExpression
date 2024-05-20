@@ -13,13 +13,13 @@ readonly class WordBoundaryFunction implements ChildFunctionInterface
     use TraitGenerate;
     use TraitSetParent;
 
-    final public function __construct(public bool $not)
+    final public function __construct(public bool $negative)
     {
     }
 
     public function __toString(): string
     {
-        return $this->not ? '\\B' : '\\b';
+        return $this->negative ? '\\B' : '\\b';
     }
 
     /** @param array{not?: bool} $data */

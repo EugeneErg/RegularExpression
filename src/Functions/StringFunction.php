@@ -30,7 +30,7 @@ readonly class StringFunction implements ChildFunctionInterface
         return strlen($this->value);
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         return $this->value;
     }

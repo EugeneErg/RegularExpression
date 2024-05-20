@@ -64,7 +64,7 @@ readonly class EnumFunction implements ParentFunctionInterface, ChildFunctionInt
         return $result;
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         $children = $this->getChildren();
 
@@ -74,7 +74,7 @@ readonly class EnumFunction implements ParentFunctionInterface, ChildFunctionInt
 
         $number = array_rand($children);
 
-        return $children[$number]->generate($from, $not);
+        return $children[$number]->generate($from, $negative);
     }
 
     public function jsonSerialize(): string

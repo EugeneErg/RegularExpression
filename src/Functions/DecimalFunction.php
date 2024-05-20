@@ -18,13 +18,13 @@ readonly class DecimalFunction implements ChildFunctionInterface
     public const MAP = [self::NOT => 'D', 0 => 'd'];
 
     public function __construct(
-        public bool $not,
+        public bool $negative,
     ) {
     }
 
     public function __toString(): string
     {
-        return '\\'.self::MAP[$this->not ? self::NOT : 0];
+        return '\\'.self::MAP[$this->negative ? self::NOT : 0];
     }
 
     public static function fromArray(array $data): static

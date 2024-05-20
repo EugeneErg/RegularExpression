@@ -154,14 +154,8 @@ class RegularExpressionInformation
                     'direction' => ['<' => 'before', '' => 'after'][$match['direction']],
                     'not' => $match['not'] === '!',
                 ],
-                '\\?(?<type>P?<)(?<value>[a-z0-9_]+)\\>' => fn (array $match) => [
-                    'name' => $match['value'],
-                    'name_type' => $match['type'],
-                ],
-                '\\?(?<type>\\\')(?<value>[a-z0-9_]+)\\\'' => fn (array $match) => [
-                    'name' => $match['value'],
-                    'name_type' => $match['type'],
-                ],
+                '\\?(?<name_type>P?<)(?<name>[a-z0-9_]+)\\>' => ['name', 'name_type'],
+                '\\?(?<name_type>\\\')(?<name>[a-z0-9_]+)\\\'' => ['name', 'name_type'],
                 '\\?(?<add>[imsxUXJ]*)(?:\\-(?<remove>[imsxUXJ]*))?\\:' => ['add', 'remove'],
                 '\\?<' => ['once' => true],
                 '\\?(?=\\()' => ['condition' => true],

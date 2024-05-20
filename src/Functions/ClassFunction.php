@@ -14,14 +14,14 @@ readonly class ClassFunction implements FunctionInterface
     use TraitSetParent;
 
     public function __construct(
-        public bool $not,
+        public bool $negative,
         public string $value,
     ) {
     }
 
     public function __toString(): string
     {
-        return '['.($this->not ? '^' : '').':'.$this->value.':]';
+        return '['.($this->negative ? '^' : '').':'.$this->value.':]';
     }
 
     public static function fromArray(array $data): static

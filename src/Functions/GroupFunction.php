@@ -7,7 +7,7 @@ namespace EugeneErg\RegularExpression\Functions;
 use EugeneErg\RegularExpression\Functions\Contracts\ChildFunctionInterface;
 use EugeneErg\RegularExpression\Functions\Traits\TraitSetParent;
 
-readonly class GroupFunction extends AbstractGroupFunction implements ChildFunctionInterface
+readonly class GroupFunction extends AbstractStructureFunction implements ChildFunctionInterface
 {
     use TraitSetParent;
 
@@ -26,7 +26,7 @@ readonly class GroupFunction extends AbstractGroupFunction implements ChildFunct
         // TODO: Implement getMaxLength() method.
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         // TODO: Implement generate() method.
     }

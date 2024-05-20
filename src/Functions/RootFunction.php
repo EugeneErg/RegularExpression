@@ -6,7 +6,7 @@ namespace EugeneErg\RegularExpression\Functions;
 
 use EugeneErg\RegularExpression\Functions\Contracts\RootFunctionInterface;
 
-readonly class RootFunction extends AbstractGroupFunction implements RootFunctionInterface
+readonly class RootFunction extends AbstractStructureFunction implements RootFunctionInterface
 {
     final public function __construct(int $addModifiers = 0)
     {
@@ -27,7 +27,7 @@ readonly class RootFunction extends AbstractGroupFunction implements RootFunctio
         // TODO: Implement getMaxLength() method.
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         // TODO: Implement generate() method.
     }

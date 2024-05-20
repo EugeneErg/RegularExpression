@@ -17,13 +17,13 @@ readonly class WordFunction implements ChildFunctionInterface
 
     public const MAP = [self::NOT => 'W', 0 => 'w'];
 
-    final public function __construct(public bool $not)
+    final public function __construct(public bool $negative)
     {
     }
 
     public function __toString(): string
     {
-        return '\\'.self::MAP[$this->not ? self::NOT : 0];
+        return '\\'.self::MAP[$this->negative ? self::NOT : 0];
     }
 
     /** @param array{not?: bool} $data */

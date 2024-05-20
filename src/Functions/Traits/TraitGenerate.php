@@ -14,9 +14,9 @@ use Throwable;
  */
 trait TraitGenerate
 {
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
-        //todo $not
+        //todo $negative
         try {
             $matches = (new RegularExpression('{', $this.'+', '}'))->matchAll($from);
         } catch (Throwable $exception) {

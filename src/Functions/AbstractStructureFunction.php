@@ -13,10 +13,10 @@ abstract readonly class AbstractStructureFunction implements ParentFunctionInter
 
     public function __construct(
         public int $number,
-        public ?string $name = null,
         public int $addModifiers = 0,
         public int $subModifiers = 0,
-        public bool $not = false,
+        public ?string $name = null,
+        public bool $negative = false,
         public ?bool $direction = null,
         public bool $once = false,
     ) {
@@ -24,6 +24,7 @@ abstract readonly class AbstractStructureFunction implements ParentFunctionInter
 
     public function __toString(): string
     {
+
     }
 
     public function getMinLength(): int
@@ -36,7 +37,7 @@ abstract readonly class AbstractStructureFunction implements ParentFunctionInter
         // TODO: Implement getMaxLength() method.
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         // TODO: Implement generate() method.
     }

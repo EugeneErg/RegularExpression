@@ -90,13 +90,13 @@ readonly class CountFunction implements ParentFunctionInterface, ChildFunctionIn
         return $result * $this->to;
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
         $value = rand($this->from, $this->to ?? ($this->from + 100));
         $result = '';
 
         for ($i = 0; $i < $value; $i++) {
-            $result .= $this->children[0]->generate($from, $not);
+            $result .= $this->children[0]->generate($from, $negative);
         }
 
         return $result;

@@ -56,9 +56,9 @@ readonly class LinkFunction implements ChildFunctionInterface
         //todo
     }
 
-    public function generate(string $from, bool $not): string
+    public function generate(string $from, bool $negative): string
     {
-        return $this->root->generate($from, $not);
+        return $this->root->generate($from, $negative);
     }
 
     public function jsonSerialize(): string
